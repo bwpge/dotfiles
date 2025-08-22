@@ -1,0 +1,18 @@
+- name: Install extra fonts
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - fonts-inter
+      - fonts-roboto
+      - fonts-jetbrains-mono
+
+- name: Install nerd fonts
+  include_tasks: install_nerdfont.yml
+  with_items:
+    - name: JetBrainsMono Nerd Font
+      archive: JetBrainsMono.zip
+    - name: Iosevka Nerd Font
+      archive: Iosevka.zip
+  loop_control:
+    loop_var: font_item

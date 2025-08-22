@@ -1,0 +1,16 @@
+- name: "{{ os_id }} | Install kitty"
+  apt:
+    pkg:
+      - kitty
+  become: true
+
+- name: "{{ os_id }} | Ensure config directory exists"
+  file:
+    path: "{{ ansible_env.HOME }}/.config/kitty"
+    state: directory
+
+- name: "{{ os_id }} | Copy config"
+  copy:
+    src: kitty.conf
+    dest: "{{ ansible_env.HOME }}/.config/kitty/kitty.conf"
+    mode: 0644

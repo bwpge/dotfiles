@@ -1,0 +1,19 @@
+- name: System configuration
+  hosts: all
+
+  pre_tasks:
+    - name: Import pre-tasks
+      include_tasks: "{{ item }}"
+      with_fileglob: "pre_tasks/*.yml"
+      tags:
+        - always
+
+  roles:
+    - system
+    - fonts
+    - go
+    - rust
+    - kitty
+    - nvim
+    - vim
+    - xfce

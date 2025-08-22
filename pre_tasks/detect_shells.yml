@@ -1,0 +1,23 @@
+---
+- name: Check for zsh config
+  stat:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+  register: _zshrc
+  changed_when: false
+
+- name: Check for bash config
+  stat:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+  register: _bashrc
+  changed_when: false
+
+- name: Set fact 'shell_configs'
+  set_fact:
+    shell_configs:
+      - name: zsh
+        path: "{{ _zshrc.stat.path | default('') }}"
+        exists: "{{ _zshrc.stat.exists | bool }}"
+      - name: bash
+        path: "{{ _bashrc.stat.path | default('') }}"
+        exists: "{{ _bashrc.stat.exists | bool }}"
+  changed_when: false

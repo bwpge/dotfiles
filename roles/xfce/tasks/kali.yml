@@ -1,0 +1,185 @@
+- name: Query monitor names
+  shell: |
+    xrandr --listmonitors | grep '^\s*[0-9]' | awk '{print $4}'
+  register: _mon
+  changed_when: false
+
+- name: Set workspace background mode
+  community.general.xfconf:
+    channel: xfce4-desktop
+    property: /backdrop/single-workspace-mode
+    value: 'true'
+    value_type: bool
+
+- name: Set login background image
+  file:
+    path: /usr/share/desktop-base/kali-theme/login/background
+    src: /usr/share/backgrounds/kali-16x9/kali-neon.png
+    state: link
+  become: true
+
+- name: Set monitor background image
+  community.general.xfconf:
+    channel: xfce4-desktop
+    property: "/backdrop/screen0/monitor{{ mon_item }}/workspace0/last-image"
+    value: /usr/share/backgrounds/kali-16x9/kali-neon.png
+    value_type: string
+  loop: "{{ _mon.stdout_lines }}"
+  loop_control:
+    loop_var: mon_item
+
+- name: Set panel border
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /panels/panel-1/border-width
+    value: 1
+    value_type: int
+
+- name: Disable mousewheel rollup
+  community.general.xfconf:
+    channel: xfwm4
+    property: /general/mousewheel_rollup
+    value: 'false'
+    value_type: bool
+
+- name: Set key repeat rate
+  community.general.xfconf:
+    channel: keyboards
+    property: /Default/KeyRepeat/Rate
+    value: 32
+    value_type: int
+
+- name: Show hidden files in thunar
+  community.general.xfconf:
+    channel: thunar
+    property: /last-show-hidden
+    value: 'true'
+    value_type: bool
+
+- name: Set screensaver timeout
+  community.general.xfconf:
+    channel: xfce4-screensaver
+    property: /saver/idle-activation/delay
+    value: 10
+    value_type: int
+
+- name: Set screensaver mode
+  community.general.xfconf:
+    channel: xfce4-screensaver
+    property: /saver/mode
+    value: 0
+    value_type: int
+
+- name: Set default terminal emulator
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.config/xfce4/helpers.rc"
+    line: 'TerminalEmulator=kitty'
+    create: true
+    mode: 0644
+
+- name: Create panel launchers
+  include_tasks: create_launcher.yml
+  with_items:
+    - name: Obsidian
+      after: 5
+      content: |
+        [Desktop Entry]
+        Categories=GNOME;GTK;Utility;Office;
+        Keywords=notes;write;
+        DBusActivatable=false
+        Exec=obsidian %U
+        Name=Obsidian
+        GenericName=Obsidian
+        Comment=Obsidian
+        Icon=obsidian-logo-gradient
+        StartupWMClass=obsidian
+        Terminal=false
+        Type=Application
+        MimeType=x-scheme-handler/obsidian;
+        Version=1.0
+        X-XFCE-Source=file:///usr/share/applications/obsidian.desktop
+  loop_control:
+    loop_var: launcher_item
+
+- name: Set interface font
+  community.general.xfconf:
+    channel: xfwm4
+    property: /general/title_font
+    value: 'Inter Display Bold 9'
+    value_type: string
+
+- name: Set GTK font
+  community.general.xfconf:
+    channel: xsettings
+    property: /Gtk/FontName
+    value: 'Inter Display 11'
+    value_type: string
+
+- name: Set GTK monospace font
+  community.general.xfconf:
+    channel: xsettings
+    property: /Gtk/MonospaceFontName
+    value: 'JetBrainsMono Nerd Font 11'
+    value_type: string
+
+- name: Set clock date font
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /plugins/plugin-19/digital-date-font
+    value: 'Inter Display 8'
+    value_type: string
+
+- name: Set clock date format
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /plugins/plugin-19/digital-date-format
+    value: '%d %b %Y'
+    value_type: string
+
+- name: Set clock layout
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /plugins/plugin-19/digital-layout
+    value: 0
+    value_type: int
+
+- name: Set clock time font
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /plugins/plugin-19/digital-time-font
+    value: 'Inter Display 10'
+    value_type: string
+
+- name: Set clock time format
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /plugins/plugin-19/digital-time-format
+    value: '%I:%M %p'
+    value_type: string
+
+- name: Set clock mode
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /plugins/plugin-19/mode
+    value: 2
+    value_type: uint
+
+- name: Ensure qt5 config directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.config/qt5ct"
+    state: directory
+
+- name: Ensure qt6 config directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.config/qt6ct"
+    state: directory
+
+- name: Update qt5 config
+  copy:
+    src: "{{ os_id }}-qt5ct.conf"
+    dest: "{{ ansible_env.HOME }}/.config/qt5ct/qt5ct.conf"
+
+- name: Update qt6 config
+  copy:
+    src: "{{ os_id }}-qt6ct.conf"
+    dest: "{{ ansible_env.HOME }}/.config/qt6ct/qt6ct.conf"

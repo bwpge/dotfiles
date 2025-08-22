@@ -1,0 +1,35 @@
+- name: "{{ os_family_lower}} | Check for current installation"
+  stat:
+    path: /opt/nvim
+  register: _nvim
+
+- name: "{{ os_family_lower}} | Install neovim"
+  block:
+    - name: "{{ os_family_lower}} | Register triple"
+      set_fact:
+        nvim_triple: "nvim-{{ ansible_system | lower }}-{{ ansible_machine }}"
+
+    - name: "{{ os_family_lower}} | Download and extract tarball"
+      unarchive:
+        remote_src: true
+        src: "https://github.com/neovim/neovim/releases/latest/download/{{ nvim_triple }}.tar.gz"
+        dest: /opt/
+        creates: "/opt/{{ nvim_triple }}"
+        owner: root
+        group: root
+      retries: 2
+      delay: 2
+      become: true
+
+    - name: "{{ os_family_lower}} | Rename directory"
+      command: "mv /opt/{{ nvim_triple }} /opt/nvim"
+      become: true
+
+    - name: "{{ os_family_lower}} | Create symbolic link"
+      file:
+        src: /opt/nvim/bin/nvim
+        dest: "/usr/local/bin/nvim"
+        state: link
+      become: true
+
+  when: not _nvim.stat.exists

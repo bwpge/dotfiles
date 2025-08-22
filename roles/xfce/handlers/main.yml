@@ -1,0 +1,3 @@
+- name: Restart xfce panel
+  command: xfce4-panel --restart
+  changed_when: false

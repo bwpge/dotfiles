@@ -1,0 +1,4 @@
+- name: "{{ os_id }} | Install golang"
+  community.general.homebrew:
+    name: go
+    state: present

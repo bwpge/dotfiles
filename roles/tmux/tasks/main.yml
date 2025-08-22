@@ -1,0 +1,13 @@
+- name: Import OS family tasks
+  include_tasks: "{{ item }}"
+  with_fileglob: "{{ os_family_lower }}.yml"
+
+- name: Import OS ID tasks
+  include_tasks: "{{ item }}"
+  with_fileglob: "{{ os_id }}.yml"
+
+- name: Install tmux config
+  copy:
+    src: ".tmux.conf"
+    dest: "{{ ansible_env.HOME }}/.tmux.conf"
+    mode: 0644

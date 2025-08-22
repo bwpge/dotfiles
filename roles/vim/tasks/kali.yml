@@ -1,0 +1,12 @@
+- name: "Install vim"
+  apt:
+    state: latest
+    pkg:
+      - vim
+  become: true
+
+- name: "Configure vim"
+  copy:
+    src: ".vimrc"
+    dest: "{{ ansible_env.HOME }}/.vimrc"
+    mode: 0644

@@ -1,0 +1,37 @@
+- name: "{{ font_item.name }} | Check if font is installed"
+  shell: "fc-list | grep '{{ font_item.name }}' | wc -l"
+  register: _fc_list
+  changed_when: false
+  failed_when: false
+
+- name: "{{ font_item.name }} | Install font"
+  block:
+
+  - name: "{{ font_item.name }} | Query latest release"
+    uri:
+      url: https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest
+    register: _nf_info
+
+  - name: "{{ font_item.name }} | Register latest version"
+    set_fact:
+      nf_latest: "{{ _nf_info.json.tag_name }}"
+
+  - name: "{{ font_item.name }} | Register download target"
+    set_fact:
+      nf_url: "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nf_latest }}/{{ font_item.archive }}"
+
+  - name: "{{ font_item.name }} | Create font directory"
+    file:
+      path: "/usr/local/share/fonts/{{ font_item.name }}"
+      state: directory
+    become: true
+
+  - name: "{{ font_item.name }} | Download and extract archive"
+    unarchive:
+      remote_src: true
+      src: "{{ nf_url }}"
+      dest: "/usr/local/share/fonts/{{ font_item.name }}/"
+    become: true
+    notify: Rebuild font cache
+
+  when: _fc_list.stdout == '0'

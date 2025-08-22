@@ -1,0 +1,46 @@
+- name: "{{ os_family_lower }} | Update system"
+  become: true
+  apt:
+    update_cache: true
+    upgrade: safe
+  notify: Clean apt packages
+
+- name: "{{ os_family_lower }} | Install build tools"
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - build-essential
+      - cmake
+      - gettext
+      - git
+      - ninja-build
+
+- name: "{{ os_family_lower }} | Install utilities"
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - bat
+      - fzf
+      - jq
+      - ripgrep
+      - tmux
+      - tree
+
+- name: "{{ os_family_lower }} | Add fzf key bindings"
+  blockinfile:
+    path: "{{ shell_item.path }}"
+    block: |
+      if command -v fzf > /dev/null 2>&1; then
+          source <(fzf --{{ shell_item.name }})
+      fi
+    append_newline: true
+    prepend_newline: true
+    marker: "# {mark} dotfile:fzf"
+    marker_begin: '>>>'
+    marker_end: '<<<'
+  when: shell_item.exists
+  loop: "{{ shell_configs }}"
+  loop_control:
+    loop_var: shell_item

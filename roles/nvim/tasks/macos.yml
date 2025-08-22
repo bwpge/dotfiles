@@ -1,0 +1,4 @@
+- name: "{{ os_family_lower }} | Install neovim"
+  community.general.homebrew:
+    state: latest
+    name: neovim
