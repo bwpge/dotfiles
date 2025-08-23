@@ -39,10 +39,20 @@
     - name: "{{ os_family_lower }} | Add go to system-wide PATH"
       lineinfile:
         path: "/etc/profile.d/go.sh"
-        line: 'export PATH=$PATH:/opt/go/bin'
+        line: 'export PATH=$PATH:/opt/go/bin:$HOME/go/bin'
         create: true
         mode: 0644
         state: present
       become: true
 
   when: not _go.stat.exists
+
+- name: Install go tools
+  shell: "/opt/go/bin/go install '{{ repo_item }}'"
+  loop:
+    - 'github.com/segmentio/golines@latest'
+    - 'golang.org/x/tools/gopls@latest'
+    - 'honnef.co/go/tools/cmd/staticcheck@latest'
+    - 'mvdan.cc/gofumpt@latest'
+  loop_control:
+    loop_var: repo_item
