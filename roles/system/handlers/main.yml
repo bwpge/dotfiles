@@ -1,6 +1,0 @@
-- name: "Clean apt packages"
-  become: true
-  apt:
-    autoremove: true
-    clean: true
-  changed_when: false

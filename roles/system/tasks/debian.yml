@@ -3,7 +3,6 @@
   apt:
     update_cache: true
     upgrade: safe
-  notify: Clean apt packages
 
 - name: "{{ os_family_lower }} | Install build tools"
   become: true
