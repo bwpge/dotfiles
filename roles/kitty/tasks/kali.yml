@@ -14,3 +14,9 @@
     src: kitty.conf
     dest: "{{ ansible_env.HOME }}/.config/kitty/kitty.conf"
     mode: 0644
+
+- name: "{{ os_id }} | Copy right-click kitten"
+  copy:
+    src: right_click_copy_paste.py
+    dest: "{{ ansible_env.HOME }}/.config/kitty/right_click_copy_paste.py"
+    mode: 0644
