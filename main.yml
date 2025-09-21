@@ -3,18 +3,52 @@
 
   pre_tasks:
     - name: Import pre-tasks
-      include_tasks: "{{ item }}"
+      include_tasks:
+        file: "{{ item }}"
+        apply:
+          tags:
+            - always
       with_fileglob: "pre_tasks/*.yml"
       tags:
         - always
 
   roles:
-    - system
-    - fonts
-    - go
-    - rust
-    - kitty
-    - nvim
-    - vim
-    - xfce
-    - zsh
+    - role: system
+      tags:
+        - system
+        - common
+    - role: grub
+      tags:
+        - grub
+        - common
+    - name: fonts
+      tags:
+        - fonts
+        - common
+    - name: go
+      tags:
+        - go
+        - dev
+    - name: rust
+      tags:
+        - rust
+        - dev
+    - name: kitty
+      tags:
+        - kitty
+        - utils
+        - kali
+    - name: nvim
+      tags:
+        - nvim
+        - utils
+    - name: vim
+      tags:
+        - vim
+        - utils
+    - name: xfce
+      tags:
+        - xfce
+    - name: zsh
+      tags:
+        - zsh
