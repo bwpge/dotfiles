@@ -1,0 +1,9 @@
+- name: Check if tool exists
+  stat:
+    path: "{{ ansible_env.HOME }}/go/bin/{{ gotool_item.name }}"
+  register: gotool
+  changed_when: false
+
+- name: "{{ gotool_item.name }} | Install go tool"
+  shell: "/opt/go/bin/go install '{{ gotool_item.pkg }}'"
+  when: not gotool.stat.exists

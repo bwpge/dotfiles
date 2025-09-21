@@ -48,11 +48,15 @@
   when: not _go.stat.exists
 
 - name: Install go tools
-  shell: "/opt/go/bin/go install '{{ repo_item }}'"
+  include_tasks: install_tool.yml
   loop:
-    - 'github.com/segmentio/golines@latest'
-    - 'golang.org/x/tools/gopls@latest'
-    - 'honnef.co/go/tools/cmd/staticcheck@latest'
-    - 'mvdan.cc/gofumpt@latest'
+    - pkg: 'github.com/segmentio/golines@latest'
+      name: golines
+    - pkg: 'golang.org/x/tools/gopls@latest'
+      name: gopls
+    - pkg: 'honnef.co/go/tools/cmd/staticcheck@latest'
+      name: staticcheck
+    - pkg: 'mvdan.cc/gofumpt@latest'
+      name: gofumpt
   loop_control:
-    loop_var: repo_item
+    loop_var: gotool_item
