@@ -1,10 +1,10 @@
-- name: "{{ os_family_lower }} | Update system"
+- name: "{{ task_prefix}}Update system"
   become: true
   apt:
     update_cache: true
     upgrade: safe
 
-- name: "{{ os_family_lower }} | Install build tools"
+- name: "{{ task_prefix}}Install build tools"
   become: true
   apt:
     state: latest
@@ -15,7 +15,7 @@
       - git
       - ninja-build
 
-- name: "{{ os_family_lower }} | Install utilities"
+- name: "{{ task_prefix}}Install utilities"
   become: true
   apt:
     state: latest
@@ -27,7 +27,7 @@
       - tmux
       - tree
 
-- name: "{{ os_family_lower }} | Add fzf key bindings"
+- name: "{{ task_prefix}}Add fzf key bindings"
   blockinfile:
     path: "{{ shell_item.path }}"
     block: |

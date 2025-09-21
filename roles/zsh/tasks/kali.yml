@@ -1,6 +1,6 @@
-- name: Configure prompt
+- name: "{{ task_prefix }}Configure prompt"
   blockinfile:
-    path: "{{ sh_item.path }}"
+    path: "{{ zsh_config.path }}"
     block: |
       {% raw %}configure_prompt() {
           prompt_symbol=㉿
@@ -31,7 +31,16 @@
     marker: "# {mark} dotfile:prompt"
     marker_begin: '>>>'
     marker_end: '<<<'
-  when: sh_item.exists and sh_item.name == "zsh"
-  loop: "{{ shell_configs }}"
-  loop_control:
-    loop_var: sh_item
+
+- name: "{{ task_prefix }}Read zsh config"
+  shell: "cat {{ zsh_config.path }}"
+  register: oldzsh
+  changed_when: false
+
+- name: "{{ task_prefix }}Fix zsh suggest highlight"
+  shell: >
+    sed -i 's/^\([[:space:]]\+\)\(ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE\)/\1# \2/gp'
+    {{ zsh_config.path }} && cat {{ zsh_config.path }}
+  register: newzsh
+  become: true
+  changed_when: oldzsh.stdout != newzsh.stdout

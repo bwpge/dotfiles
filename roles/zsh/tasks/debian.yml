@@ -1,0 +1,23 @@
+- name: "{{ task_prefix }}Configure prompt"
+  blockinfile:
+    path: "{{ zsh_config.path }}"
+    block: |
+      alias ll='lsd -lh'
+      alias la='lsd -lah'
+      alias l='lsd -lAh'
+      alias gs='git status'
+      alias ga='git add'
+      alias gc='git commit'
+      alias gca='git commit --verbose --amend --no-edit'
+      alias gf='git fetch'
+      alias gp='git push'
+      alias gpl='git pull'
+      alias gd='git diff'
+      alias gds='git diff --staged'
+      alias gl='git -P log --all --graph --pretty=tformat:'\''%C(auto)%h%Creset%C(auto)%d %C(auto)%s %C(blue)(%cr)%Creset'\'
+    append_newline: true
+    prepend_newline: true
+    marker: "# {mark} dotfile:alias"
+    marker_begin: '>>>'
+    marker_end: '<<<'
+  when: zsh_config.exists

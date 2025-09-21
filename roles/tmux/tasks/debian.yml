@@ -1,4 +1,4 @@
-- name: "{{ os_id }} | Install extra packages"
+- name: "{{task_prefix}}Install extra packages"
   become: true
   apt:
     state: latest

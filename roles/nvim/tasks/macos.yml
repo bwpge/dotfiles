@@ -1,4 +1,4 @@
-- name: "{{ os_family_lower }} | Install neovim"
+- name: "{{ task_prefix}}Install neovim"
   community.general.homebrew:
     state: latest
     name: neovim

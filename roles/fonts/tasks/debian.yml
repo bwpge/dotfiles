@@ -1,4 +1,4 @@
-- name: Install extra fonts
+- name: "{{ task_prefix }}Install extra fonts"
   become: true
   apt:
     state: latest
@@ -7,9 +7,9 @@
       - fonts-roboto
       - fonts-jetbrains-mono
 
-- name: Install nerd fonts
+- name: "{{ task_prefix }}Install nerd fonts"
   include_tasks: install_nerdfont.yml
-  with_items:
+  loop:
     - name: JetBrainsMono Nerd Font
       archive: JetBrainsMono.zip
     - name: Iosevka Nerd Font

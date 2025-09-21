@@ -1,14 +1,14 @@
-- name: "{{ os_family_lower }} | Update system"
+- name: "{{ task_prefix }}Update system"
   community.general.homebrew:
     update_homebrew: true
     upgrade: true
 
-- name: "{{ os_family_lower }} | Install build tools"
+- name: "{{ task_prefix }}Install build tools"
   community.general.homebrew:
     state: latest
     name: cmake,gettext,git,ninja
 
-- name: "{{ os_family_lower }} | Install utilities"
+- name: "{{ task_prefix }}Install utilities"
   community.general.homebrew:
     state: latest
     pkg: bat,fzf,jq,lsd,ripgrep,tmux,tree

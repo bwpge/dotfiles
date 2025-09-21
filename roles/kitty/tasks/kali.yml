@@ -1,21 +1,21 @@
-- name: "{{ os_id }} | Install kitty"
+- name: "{{ task_prefix}}Install kitty"
   apt:
     pkg:
       - kitty
   become: true
 
-- name: "{{ os_id }} | Ensure config directory exists"
+- name: "{{ task_prefix}}Ensure config directory exists"
   file:
     path: "{{ ansible_env.HOME }}/.config/kitty"
     state: directory
 
-- name: "{{ os_id }} | Copy config"
+- name: "{{ task_prefix}}Copy config"
   copy:
     src: kitty.conf
     dest: "{{ ansible_env.HOME }}/.config/kitty/kitty.conf"
     mode: 0644
 
-- name: "{{ os_id }} | Copy right-click kitten"
+- name: "{{ task_prefix}}Copy right-click kitten"
   copy:
     src: right_click_copy_paste.py
     dest: "{{ ansible_env.HOME }}/.config/kitty/right_click_copy_paste.py"

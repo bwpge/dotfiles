@@ -1,4 +1,4 @@
-- name: "{{ os_id }} | Install golang"
+- name: "{{ task_prefix }}Install golang"
   community.general.homebrew:
     name: go
-    state: present
+    state: latest

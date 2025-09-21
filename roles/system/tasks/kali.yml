@@ -1,4 +1,4 @@
-- name: "{{ os_id }} | Install extra packages"
+- name: "{{ task_prefix}}Install extra packages"
   become: true
   apt:
     state: latest
@@ -8,19 +8,19 @@
       - obsidian
       - seclists
 
-- name: "{{ os_id }} | Check for ssh key"
+- name: "{{ task_prefix}}Check for ssh key"
   stat:
     path: ~/.ssh/id_ed25519
   register: sshkey_check
 
-- name: "{{ os_id }} | Create ssh key"
+- name: "{{ task_prefix}}Create ssh key"
   shell: |
     ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ""
   args:
     executable: /bin/sh
   when: not sshkey_check.stat.exists
 
-- name: "{{ os_id }} | Decompress rockyou.txt"
+- name: "{{ task_prefix}}Decompress rockyou.txt"
   command: gunzip -k /usr/share/wordlists/rockyou.txt.gz
   args:
     creates: /usr/share/wordlists/rockyou.txt

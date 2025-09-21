@@ -1,4 +1,4 @@
-- name: "{{ os_family_lower }} | Install tmux"
+- name: "{{ task_prefix }}Install tmux"
   community.general.homebrew:
     state: latest
     name: tmux

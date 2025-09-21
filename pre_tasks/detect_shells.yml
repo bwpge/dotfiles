@@ -11,7 +11,7 @@
   register: _bashrc
   changed_when: false
 
-- name: Set fact 'shell_configs'
+- name: Set shell config facts
   set_fact:
     shell_configs:
       - name: zsh
@@ -20,4 +20,10 @@
       - name: bash
         path: "{{ _bashrc.stat.path | default('') }}"
         exists: "{{ _bashrc.stat.exists | bool }}"
+    zsh_config:
+      path: "{{ _zshrc.stat.path | default('') }}"
+      exists: "{{ _zshrc.stat.exists | bool }}"
+    bash_config:
+      path: "{{ _bashrc.stat.path | default('') }}"
+      exists: "{{ _bashrc.stat.exists | bool }}"
   changed_when: false

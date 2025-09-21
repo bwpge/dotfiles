@@ -1,33 +1,33 @@
-- name: "{{ os_family_lower}} | Check for current installation"
+- name: "{{ task_prefix }}Check for current installation"
   stat:
     path: /opt/go
   register: _go
 
 - name: Install golang
   block:
-    - name: "{{ os_family_lower}} | Query latest version"
+    - name: "{{ task_prefix }}Query latest version"
       uri:
         url: https://go.dev/dl/?mode=json
       register: go_dev_info
       changed_when: false
 
-    - name: "{{ os_family_lower}} | Register latest version"
+    - name: "{{ task_prefix }}Register latest version"
       set_fact:
         go_latest: "{{ go_dev_info.json[0].version }}"
       changed_when: false
 
-    - name: "{{ os_family_lower }} | Register download target"
+    - name: "{{ task_prefix }}Register download target"
       set_fact:
         go_tarball: "{{ go_latest }}.{{ ansible_system | lower }}-{{ ansible_machine | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }}.tar.gz"
 
-    - name: "{{ os_family_lower }} | Download and extract tarball"
+    - name: "{{ task_prefix }}Download and extract tarball"
       unarchive:
         remote_src: true
         src: "https://golang.org/dl/{{ go_tarball }}"
         dest: /opt
       become: true
 
-    - name: "{{ os_family_lower }} | Set directory permissions"
+    - name: "{{ task_prefix }}Set directory permissions"
       file:
         path: /opt/go
         state: directory
@@ -36,7 +36,7 @@
         group: root
       become: true
 
-    - name: "{{ os_family_lower }} | Add go to system-wide PATH"
+    - name: "{{ task_prefix }}Add go to system-wide PATH"
       lineinfile:
         path: "/etc/profile.d/go.sh"
         line: 'export PATH=$PATH:/opt/go/bin:$HOME/go/bin'
@@ -47,7 +47,7 @@
 
   when: not _go.stat.exists
 
-- name: Install go tools
+- name: "{{ task_prefix }}Install go tools"
   include_tasks: install_tool.yml
   loop:
     - pkg: 'github.com/segmentio/golines@latest'

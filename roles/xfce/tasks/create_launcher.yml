@@ -1,29 +1,29 @@
-- name: Check if launcher exists
+- name: "{{task_prefix}}Check if launcher exists"
   shell: "if grep -qr '{{ launcher_item.name }}' {{ ansible_env.HOME }}/.config/xfce4/panel; then echo 'true'; fi"
   register: _check
   changed_when: false
 
-- name: Create launcher
+- name: "{{task_prefix}}Create launcher"
   block:
-    - name: Query last panel index
+    - name: "{{task_prefix}}Query last panel index"
       shell: |
         xfconf-query -c xfce4-panel -l | grep '/plugins/plugin-[0-9][0-9]\?$' | cut -d '-' -f2 | sort -n | tail -n1
       register: _idx
       changed_when: false
       failed_when: _idx.stdout | length == 0
 
-    - name: Register panel index
+    - name: "{{task_prefix}}Register panel index"
       set_fact:
         panel_idx: "{{ _idx.stdout | int + 1 }}"
       changed_when: false
 
-    - name: Register panel directory
+    - name: "{{task_prefix}}Register panel directory"
       set_fact:
         launcher_dir: "{{ ansible_env.HOME }}/.config/xfce4/panel/launcher-{{ panel_idx }}"
         desktop_file: "{{ ansible_env.HOME }}/.config/xfce4/panel/launcher-{{ panel_idx }}/{{ now().strftime('%s') }}.desktop"
       changed_when: false
 
-    - name: Prepare xfconf array
+    - name: "{{task_prefix}}Prepare xfconf array"
       shell: >
         xfconf-query -c xfce4-panel -p /panels/panel-1/plugin-ids |
         grep '^[0-9]' | awk '{ printf "%s ", $0 }' |
@@ -32,24 +32,24 @@
       register: cmd_arr
       changed_when: false
 
-    - name: Create launcher directory
+    - name: "{{task_prefix}}Create launcher directory"
       file:
         path: "{{ launcher_dir }}"
         state: directory
 
-    - name: Create launcher desktop file
+    - name: "{{task_prefix}}Create launcher desktop file"
       copy:
         content: "{{ launcher_item.content }}"
         dest: "{{ desktop_file }}"
 
-    - name: Create launcher property
+    - name: "{{task_prefix}}Create launcher property"
       community.general.xfconf:
         channel: xfce4-panel
         property: "/plugins/plugin-{{ panel_idx }}"
         value: launcher
         value_type: string
 
-    - name: Set launcher property items
+    - name: "{{task_prefix}}Set launcher property items"
       community.general.xfconf:
         channel: xfce4-panel
         property: "/plugins/plugin-{{ panel_idx }}/items"
@@ -57,7 +57,7 @@
         value_type: string
         force_array: true
 
-    - name: Update panel plugin array
+    - name: "{{task_prefix}}Update panel plugin array"
       shell: "xfconf-query -c xfce4-panel -p /panels/panel-1/plugin-ids -n -a {{ cmd_arr.stdout }}"
 
   when: _check.stdout == ''
