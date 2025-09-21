@@ -101,6 +101,10 @@
   loop_control:
     loop_var: launcher_item
 
+- name: Quit xfce4-panel
+  command: xfce4-panel -q
+  changed_when: false
+
 - name: Set interface font
   community.general.xfconf:
     channel: xfwm4
@@ -164,6 +168,48 @@
     value: 2
     value_type: uint
 
+- name: Set VPN monitor command
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /plugins/plugin-15/command
+    value: '/usr/share/kali-themes/xfce4-panel-genmon-vpnip.sh'
+    value_type: string
+
+- name: Set VPN monitor update period
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /plugins/plugin-15/update-period
+    value: '30000'
+    value_type: int
+
+- name: Set VPN monitor text
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /plugins/plugin-15/text
+    value: ''
+    value_type: string
+
+- name: Disable VPN monitor label
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /plugins/plugin-15/use-label
+    value: 'false'
+    value_type: bool
+
+- name: Enable VPN monitor single-row
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /plugins/plugin-15/enable-single-row
+    value: 'true'
+    value_type: bool
+
+- name: Set VPN monitor font
+  community.general.xfconf:
+    channel: xfce4-panel
+    property: /plugins/plugin-15/font
+    value: 'Inter Display 10'
+    value_type: string
+
 - name: Ensure qt5 config directory exists
   file:
     path: "{{ ansible_env.HOME }}/.config/qt5ct"
@@ -183,3 +229,7 @@
   copy:
     src: "{{ os_id }}-qt6ct.conf"
     dest: "{{ ansible_env.HOME }}/.config/qt6ct/qt6ct.conf"
+
+- name: Start xfce4-panel
+  shell: 'xfce4-panel &'
+  changed_when: false
