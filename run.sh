@@ -5,27 +5,6 @@ bylw='\033[1;33m'
 bold='\033[1m'
 nc='\033[0m'
 
-_confirm() {
-    while true; do
-        echo -ne "${bold}$1$nc [y/N]: "
-        read -r yn
-        case $yn in
-            [Yy] ) return 0;;
-            [Nn]|'' ) return 1;;
-            *) echo "Invalid response. Please answer y or n.";;
-        esac
-    done
-}
-
-_countdown() {
-    seconds=5
-    for ((i=seconds; i>0; i--)); do
-        echo -ne "\r${bylw}$1 in $i seconds...$nc "
-        sleep 1
-    done
-    echo
-}
-
 # TODO: update for other systems
 
 echo -e "${bold}[+] Updating system$nc"
@@ -45,14 +24,5 @@ echo -e "${bold}[+] Cleaning apt$nc"
 sudo apt clean -y
 sudo apt autoremove -y
 
-if [ $? = 0 ]; then
-    echo -e "\n${bcyn}Some settings will not take effect until you logout$nc"
-
-    if command -v xfce4-session-logout &> /dev/null; then
-        if _confirm "Do you want to logout now?"; then
-            _countdown "Logging out"
-            xfce4-session-logout --logout
-            exit 0
-        fi
-    fi
-fi
+echo -e "${bold}Done configuring system!$nc"
+echo -e "\n${bylw}Some settings will not take effect until you logout$nc"
