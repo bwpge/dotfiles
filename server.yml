@@ -1,0 +1,34 @@
+- name: System configuration
+  hosts: all
+
+  pre_tasks:
+    - name: Import pre-tasks
+      include_tasks:
+        file: "{{ item }}"
+        apply:
+          tags:
+            - always
+      with_fileglob: "pre_tasks/*.yml"
+      tags:
+        - always
+
+  roles:
+    - role: system
+      tags:
+        - system
+        - common
+    - name: go
+      tags:
+        - go
+        - dev
+    - name: rust
+      tags:
+        - rust
+        - dev
+    - name: vim
+      tags:
+        - vim
+        - utils
+    - name: zsh
+      tags:
+        - zsh
