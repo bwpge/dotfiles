@@ -25,6 +25,10 @@
       tags:
         - zsh
         - common
+    - role: git
+      tags:
+        - git
+        - dev
     - role: go
       tags:
         - go

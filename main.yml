@@ -21,34 +21,38 @@
       tags:
         - grub
         - common
-    - name: fonts
+    - role: fonts
       tags:
         - fonts
         - common
-    - name: go
+    - role: git
+      tags:
+        - git
+        - dev
+    - role: go
       tags:
         - go
         - dev
-    - name: rust
+    - role: rust
       tags:
         - rust
         - dev
-    - name: kitty
+    - role: kitty
       tags:
         - kitty
         - utils
         - kali
-    - name: nvim
+    - role: nvim
       tags:
         - nvim
         - utils
-    - name: vim
+    - role: vim
       tags:
         - vim
         - utils
-    - name: xfce
+    - role: xfce
       tags:
         - xfce
-    - name: zsh
+    - role: zsh
       tags:
         - zsh

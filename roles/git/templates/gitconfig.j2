@@ -1,0 +1,18 @@
+{% if has_gpg_key %}
+[user]
+    email = {{ gpg_email }}
+    name = {{ gpg_name }}
+    signingkey = {{ gpg_email }}
+[commit]
+    gpgsign = true
+{% endif %}
+{% if os_family_lower == 'windows' %}
+[core]
+    longpaths = true
+    autocrlf = false
+{% endif %}
+[alias]
+    graph = log --graph --decorate --all --oneline --pretty=format:'%C(auto)%h%Creset%C(auto)%d %C(auto)%s %C(blue)(%cr)%Creset'
+    gcnow = gc --aggressive --prune=now
+[init]
+    defaultBranch = main
