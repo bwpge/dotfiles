@@ -28,6 +28,7 @@ set splitbelow
 set diffopt+=vertical
 
 " keymaps
+noremap <esc> <cmd>noh<cr><esc>
 noremap <leader>q <cmd>confirm q<cr>
 noremap <leader>w :w<cr>
 noremap <leader>W :noa w<cr>

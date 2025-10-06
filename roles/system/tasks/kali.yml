@@ -1,3 +1,14 @@
+- name: "{{ task_prefix}}Install build tools"
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - build-essential
+      - cmake
+      - gettext
+      - git
+      - ninja-build
+
 - name: "{{ task_prefix}}Install extra packages"
   become: true
   apt:

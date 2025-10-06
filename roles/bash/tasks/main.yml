@@ -1,14 +1,17 @@
-- name: "{{ task_prefix }}Configure aliases"
+- name: "Configure bashrc"
   blockinfile:
-    path: "{{ zsh_config.path }}"
+    path: "{{ bash_config.path }}"
     block: |
-      alias ll='lsd -lh'
-      alias la='lsd -lah'
-      alias l='lsd -lAh'
+      alias l='ls -lah'
+      alias ls='ls -la'
+      alias la='ls -lAh'
+      alias less='less -R'
+      alias grep='grep --color=auto'
+      alias fgrep='fgrep --color=auto'
+      alias egrep='egrep --color=auto'
       alias gs='git status'
       alias ga='git add'
       alias gc='git commit'
-      alias gca='git commit --verbose --amend --no-edit'
       alias gf='git fetch'
       alias gp='git push'
       alias gpl='git pull'
@@ -17,7 +20,7 @@
       alias gl='git -P log --all --graph --pretty=tformat:'\''%C(auto)%h%Creset%C(auto)%d %C(auto)%s %C(blue)(%cr)%Creset'\'
     append_newline: true
     prepend_newline: true
-    marker: "# {mark} dotfile:alias-zsh"
+    marker: "# {mark} dotfile:alias-bash"
     marker_begin: '>>>'
     marker_end: '<<<'
-  when: zsh_config.exists
+  when: bash_config.exists

@@ -17,18 +17,26 @@
       tags:
         - system
         - common
-    - name: go
+    - role: bash
+      tags:
+        - bash
+        - common
+    - role: zsh
+      tags:
+        - zsh
+        - common
+    - role: go
       tags:
         - go
         - dev
-    - name: rust
+        - never
+    - role: rust
       tags:
         - rust
         - dev
-    - name: vim
+        - never
+    - role: vim
       tags:
         - vim
+        - common
         - utils
-    - name: zsh
-      tags:
-        - zsh

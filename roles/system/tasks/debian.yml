@@ -4,17 +4,6 @@
     update_cache: true
     upgrade: safe
 
-- name: "{{ task_prefix}}Install build tools"
-  become: true
-  apt:
-    state: latest
-    pkg:
-      - build-essential
-      - cmake
-      - gettext
-      - git
-      - ninja-build
-
 - name: "{{ task_prefix}}Install utilities"
   become: true
   apt:
@@ -26,6 +15,7 @@
       - ripgrep
       - tmux
       - tree
+      - vim
 
 - name: "{{ task_prefix}}Add fzf key bindings"
   blockinfile:
