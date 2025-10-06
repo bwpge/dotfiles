@@ -40,3 +40,13 @@
         - vim
         - common
         - utils
+    - role: aptly
+      tags:
+        - aptly
+        - pkg
+        - never
+    - role: gbp
+      tags:
+        - gbp
+        - pkg
+        - never

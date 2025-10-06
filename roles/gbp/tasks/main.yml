@@ -1,0 +1,12 @@
+- name: Check for gbp config
+  stat:
+    path: "{{ ansible_env.HOME }}/.gbp.conf"
+  register: gbpconf
+  changed_when: false
+
+- name: Install gbp config
+  copy:
+    src: "gbp.conf"
+    dest: "{{ ansible_env.HOME }}/.gbp.conf"
+    mode: 0644
+  when: not gbpconf.stat.exists

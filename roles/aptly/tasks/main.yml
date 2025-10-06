@@ -1,0 +1,20 @@
+- name: Check for aptly config
+  stat:
+    path: /etc/aptly.conf
+  register: aptlyconf
+  changed_when: false
+
+- name: Install aptly config
+  copy:
+    src: "aptly.conf"
+    dest: "/etc/aptly.conf"
+    mode: 0644
+  become: true
+  when: not aptlyconf.stat.exists
+
+- name: Create aptly directory
+  file:
+    path: /var/aptly
+    state: directory
+    mode: 0777
+  become: true
