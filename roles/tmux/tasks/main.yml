@@ -9,6 +9,7 @@
   with_fileglob: "{{ os_id }}.yml"
   vars:
     task_prefix: "{{ os_id }} | "
+  when: os_family_lower != os_id
 
 - name: Install tmux config
   copy:
