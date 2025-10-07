@@ -1,6 +1,0 @@
-- name: "{{task_prefix}}Install git"
-  apt:
-    state: latest
-    pkg:
-      - git
-  become: true

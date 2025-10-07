@@ -1,16 +1,3 @@
-- name: Import OS family tasks
-  include_tasks: "{{ item }}"
-  with_fileglob: "{{ os_family_lower }}.yml"
-  vars:
-    task_prefix: "{{ os_family_lower }} | "
-
-- name: Import OS ID tasks
-  include_tasks: "{{ item }}"
-  with_fileglob: "{{ os_id }}.yml"
-  vars:
-    task_prefix: "{{ os_id }} | "
-  when: os_family_lower != os_id
-
 - name: Get gpg key information
   shell: >
     gpg --list-secret-keys --with-colons |
@@ -20,14 +7,14 @@
   register: gpgcmd
   changed_when: false
 
-- name: Set fact key facts
+- name: Set gpg key facts
   set_fact:
     has_gpg_key: "{{ gpgcmd.stdout != '' }}"
     gpg_name: "{{ gpgcmd.stdout_lines[0] | default('') }}"
     gpg_email: "{{ gpgcmd.stdout_lines[1] | default('') }}"
   changed_when: false
 
-- name: Create .gitconfig from template
+- name: Create gitconfig from template
   template:
     src: gitconfig.j2
     dest: "{{ ansible_env.HOME }}/.gitconfig"
