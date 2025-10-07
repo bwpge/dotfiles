@@ -1,15 +1,28 @@
+- name: "{{task_prefix}}Check for update-grub command"
+  shell: |
+    sudo which update-grub || true
+  register: grubcmd
+  become: true
+  changed_when: false
+
+- name: "{{task_prefix}}Set has_grub_update fact"
+  set_fact:
+    has_grub_update: "{{ grubcmd.stdout != '' }}"
+
 - name: "{{task_prefix}}Read grub config"
   shell: "cat /etc/default/grub"
   register: oldgrub
   changed_when: false
+  when: has_grub_update
 
 - name: "{{task_prefix}}Update grub timeout"
   shell: "sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=0/g' /etc/default/grub && cat /etc/default/grub"
   register: newgrub
   become: true
   changed_when: oldgrub.stdout != newgrub.stdout
+  when: has_grub_update
 
 - name: "{{task_prefix}}Update grub"
   shell: "update-grub"
   become: true
-  when: oldgrub.stdout != newgrub.stdout
+  when: has_grub_update and oldgrub.stdout != newgrub.stdout
