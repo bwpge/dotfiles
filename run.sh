@@ -1,6 +1,7 @@
 #!/bin/bash
 
 bred='\033[1;31m'
+cyn='\033[0;36m'
 bcyn='\033[1;36m'
 bylw='\033[1;33m'
 bold='\033[1m'
@@ -22,8 +23,6 @@ get_os_id() {
     fi
 }
 
-playbook="main.yml"
-
 debian_setup() {
     _task "Updating system"
     sudo apt update -y
@@ -31,10 +30,6 @@ debian_setup() {
 
     _task "Installing ansible"
     sudo apt install -y ansible
-
-    if dpkg -l ubuntu-server &>/dev/null; then
-        playbook="server.yml"
-    fi
 }
 
 macos_setup() {
@@ -50,7 +45,7 @@ os_id="$(get_os_id | tr '[:upper:]' '[:lower:]')"
 _task "Running setup for OS ID '${os_id}'"
 
 case "$os_id" in
-    ubuntu|kali)
+    debian|ubuntu|kali)
         debian_setup
         ;;
     macos)
@@ -65,8 +60,9 @@ esac
 _task "Installing required modules"
 ansible-galaxy install -r requirements.yml
 
-_task "Running playbook '$playbook'"
-ansible-playbook -K -i localhost, -c local $playbook
+chmod u+x bin/dotfiles
+bin/dotfiles install &> /dev/null
 
-echo -e "${bold}Done configuring system!$nc"
-echo -e "${bylw}Some settings will not take effect until you logout or reboot$nc"
+echo -e "\n${cyn}Finished setting up! Run$nc\n"
+echo -e "${bcyn}    dotfiles help$nc"
+echo -e "\n${cyn}for more information$nc"

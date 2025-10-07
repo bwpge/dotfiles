@@ -1,9 +1,35 @@
 #!/bin/bash
 
-if [ "$1" = "install" ]; then
+function show_help {
+    echo "dotfiles - Dotfiles management solution with ansible"
+    echo ""
+    echo "Usage: dotfiles [-b PLAYBOOK] [TAG...]"
+    echo "       dotfiles [un]install"
+    echo "       dotfiles help"
+    echo "       dotfiles -h"
+    echo ""
+    echo "Commands:"
+    echo "  install       add this script to the PATH"
+    echo "  uninstall     remove this script from the PATH"
+    echo "  help          same as -h"
+    echo ""
+    echo "Arguments:"
+    echo "  TAG...        one or more tags passed directly to ansible-playbook with '-t'"
+    echo ""
+    echo "Options:"
+    echo "  -b PLAYBBOK   the PLAYBOOK to execute, without yml extension (default: main)"
+    echo "                NOTE: this option must be used before any TAG arguments"
+    echo "  -h            show this help menu"
+}
+
+if [ "$1" = "help" ]; then
+    show_help
+    exit 0
+elif [ "$1" = "install" ]; then
+    ctx="dotfiles install"
     target="/usr/local/bin/dotfiles"
     if [ -e $target ]; then
-        echo "already installed"
+        echo "dotfiles: cannot install (already installed)"
         exit 0
     fi
 
@@ -16,20 +42,34 @@ if [ "$1" = "install" ]; then
     echo "linking $src -> $target"
     sudo ln -s $src $target
     exit 0
+elif [ "$1" = "uninstall" ]; then
+    if [ -e "/usr/local/bin/dotfiles" ]; then
+        sudo rm "/usr/local/bin/dotfiles"
+        echo "dotfiles: successfully uninstalled dotfiles"
+    else
+        echo "dotfiles: cannot uninstall (not installed)"
+    fi
+    exit 0
 fi
 
 playbook=""
-while getopts "b:" opt; do
+while getopts "hb:" opt 2>/dev/null; do
     case $opt in
         b)
             playbook="$OPTARG.yml"
             ;;
+        h)
+            show_help
+            exit 0
+            ;;
         \?)
             echo "error: invalid option: -$OPTARG" >&2
+            show_help
             exit 1
             ;;
         :)
             echo "error: -$OPTARG requires an argument" >&2
+            show_help
             exit 1
             ;;
     esac
@@ -57,7 +97,7 @@ if [ $# -gt 0 ]; then
         tags="${tags},$t"
     done
 
-    ansible-playbook -K -i localhost, -c local $playbook -t $tags
+    ansible-playbook -K -i localhost, -c local $playbook_path -t $tags
 else
-    ansible-playbook -K -i localhost, -c local $playbook
+    ansible-playbook -K -i localhost, -c local $playbook_path
 fi
