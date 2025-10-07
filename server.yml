@@ -17,6 +17,10 @@
       tags:
         - system
         - common
+    - role: grub
+      tags:
+        - grub
+        - common
     - role: bash
       tags:
         - bash
@@ -28,7 +32,14 @@
     - role: git
       tags:
         - git
-        - dev
+        - utils
+    - role: vim
+      tags:
+        - vim
+        - common
+        - utils
+
+    # run only if specified in tags
     - role: go
       tags:
         - go
@@ -39,11 +50,6 @@
         - rust
         - dev
         - never
-    - role: vim
-      tags:
-        - vim
-        - common
-        - utils
     - role: aptly
       tags:
         - aptly
