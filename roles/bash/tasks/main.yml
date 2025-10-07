@@ -3,7 +3,6 @@
     path: "{{ bash_config.path }}"
     block: |
       alias l='ls -lah'
-      alias ls='ls -la'
       alias la='ls -lAh'
       alias less='less -R'
       alias grep='grep --color=auto'
