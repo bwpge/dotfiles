@@ -1,0 +1,63 @@
+#!/bin/bash
+
+if [ "$1" = "install" ]; then
+    target="/usr/local/bin/dotfiles"
+    if [ -e $target ]; then
+        echo "already installed"
+        exit 0
+    fi
+
+    src="$(realpath $0)"
+    if [ -z $src ]; then
+        echo "error: could not determine path to dotfiles script" >&2
+        exit 1
+    fi
+
+    echo "linking $src -> $target"
+    sudo ln -s $src $target
+    exit 0
+fi
+
+playbook=""
+while getopts "b:" opt; do
+    case $opt in
+        b)
+            playbook="$OPTARG.yml"
+            ;;
+        \?)
+            echo "error: invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+        :)
+            echo "error: -$OPTARG requires an argument" >&2
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+if [ -z $playbook ]; then
+    playbook="main.yml"
+fi
+
+playbook_path="$HOME/.dotfiles/$playbook"
+if [ ! -f $playbook_path ]; then
+    echo "error: playbook '$playbook' does not exist" >&2
+    exit 1
+fi
+
+echo "Executing playbook: $playbook_path"
+if [ $# -gt 0 ]; then
+    echo "Using tags:"
+
+    # fix missing comma, can get annoying to type out
+    tags=""
+    for t in "$@"; do
+        echo "  - $t"
+        tags="${tags},$t"
+    done
+
+    ansible-playbook -K -i localhost, -c local $playbook -t $tags
+else
+    ansible-playbook -K -i localhost, -c local $playbook
+fi
