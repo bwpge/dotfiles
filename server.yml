@@ -32,6 +32,7 @@
     - role: git
       tags:
         - git
+        - common
         - utils
     - role: vim
       tags:

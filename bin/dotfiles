@@ -11,6 +11,7 @@ function show_help {
     echo "Commands:"
     echo "  install       add this script to the PATH"
     echo "  uninstall     remove this script from the PATH"
+    echo "  update        run git pull in \$HOME/.dotfiles"
     echo "  help          same as -h"
     echo ""
     echo "Arguments:"
@@ -50,13 +51,16 @@ elif [ "$1" = "uninstall" ]; then
         echo "dotfiles: cannot uninstall (not installed)"
     fi
     exit 0
+elif [ "$1" = "update" ]; then
+    git -C $HOME/.dotfiles pull
+    exit 0
 fi
 
 playbook=""
 while getopts "hb:" opt 2>/dev/null; do
     case $opt in
         b)
-            playbook="$OPTARG.yml"
+            playbook="$OPTARG"
             ;;
         h)
             show_help
@@ -76,13 +80,21 @@ while getopts "hb:" opt 2>/dev/null; do
 done
 shift $((OPTIND - 1))
 
+# check for a default playbook
 if [ -z $playbook ]; then
-    playbook="main.yml"
+    if [ -f "/etc/dotfiles.conf" ]; then
+        playbook="$(awk -F'=' '/playbook[[:space:]]=/ { sub(/^[ \t]*/, "", $2); print $2 }' /etc/dotfiles.conf)"
+    fi
 fi
 
-playbook_path="$HOME/.dotfiles/$playbook"
+# if still nothing, use default
+if [ -z $playbook ]; then
+    playbook="main"
+fi
+
+playbook_path="$HOME/.dotfiles/$playbook.yml"
 if [ ! -f $playbook_path ]; then
-    echo "error: playbook '$playbook' does not exist" >&2
+    echo "error: playbook '$playbook' does not exist (expected $playbook_path)" >&2
     exit 1
 fi
 
