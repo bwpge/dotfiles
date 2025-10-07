@@ -53,6 +53,7 @@ elif [ "$1" = "uninstall" ]; then
     exit 0
 elif [ "$1" = "update" ]; then
     git -C $HOME/.dotfiles pull
+    chmod u+x $HOME/.dotfiles/bin/dotfiles
     exit 0
 fi
 
