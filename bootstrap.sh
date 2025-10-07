@@ -1,10 +1,12 @@
 #!/bin/sh
 
-if [ ! -d dotfiles ]; then
-    git clone https://github.com/bwpge/dotfiles.git
-    cd dotfiles
+dfpath="$HOME/.dotfiles"
+
+if [ ! -d "$dfpath" ]; then
+    git clone https://github.com/bwpge/dotfiles.git "$dfpath"
+    cd "$dfpath"
 else
-    cd dotfiles
+    cd "$dfpath"
     git pull
 fi
 
