@@ -34,6 +34,11 @@
         - git
         - common
         - utils
+    - role: gpg
+      tags:
+        - gpg
+        - common
+        - utils
     - role: vim
       tags:
         - vim

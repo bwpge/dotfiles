@@ -1,0 +1,7 @@
+- name: Install gpg
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - gpg
+  when: os_family_lower == 'debian'
