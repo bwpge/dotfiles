@@ -1,3 +1,11 @@
+- name: Install aptly
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - aptly
+  when: os_family_lower == 'debian'
+
 - name: Check for aptly config
   stat:
     path: /etc/aptly.conf

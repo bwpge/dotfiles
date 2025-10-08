@@ -1,3 +1,11 @@
+- name: Install git-buildpackage
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - git-buildpackage
+  when: os_family_lower == 'debian'
+
 - name: Check for gbp config
   stat:
     path: "{{ ansible_env.HOME }}/.gbp.conf"
