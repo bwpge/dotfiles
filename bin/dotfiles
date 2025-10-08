@@ -9,8 +9,8 @@ function show_help {
     echo "       dotfiles -h"
     echo ""
     echo "Commands:"
-    echo "  install       add this script to the PATH"
-    echo "  uninstall     remove this script from the PATH"
+    echo "  install       add this script to the PATH and create config files"
+    echo "  uninstall     uninstall this script and delete associated files"
     echo "  update        run git pull in \$HOME/.dotfiles"
     echo "  help          same as -h"
     echo ""
@@ -22,6 +22,8 @@ function show_help {
     echo "                NOTE: this option must be used before any TAG arguments"
     echo "  -h            show this help menu"
 }
+
+dfconf='/etc/dotfiles.conf'
 
 if [ "$1" = "help" ]; then
     show_help
@@ -40,12 +42,15 @@ elif [ "$1" = "install" ]; then
         exit 1
     fi
 
-    echo "linking $src -> $target"
+    echo "creating link: $src -> $target"
     sudo ln -s $src $target
+    echo "creating config file: $dfconf"
+    sudo touch $dfconf
     exit 0
 elif [ "$1" = "uninstall" ]; then
     if [ -e "/usr/local/bin/dotfiles" ]; then
         sudo rm "/usr/local/bin/dotfiles"
+        sudo rm "$dfconf"
         echo "dotfiles: successfully uninstalled dotfiles"
     else
         echo "dotfiles: cannot uninstall (not installed)"
@@ -83,8 +88,8 @@ shift $((OPTIND - 1))
 
 # check for a default playbook
 if [ -z $playbook ]; then
-    if [ -f "/etc/dotfiles.conf" ]; then
-        playbook="$(awk -F'=' '/playbook[[:space:]]=/ { sub(/^[ \t]*/, "", $2); print $2 }' /etc/dotfiles.conf)"
+    if [ -f "$dfconf" ]; then
+        playbook="$(awk '/playbook/ { print $2 }' $dfconf)"
     fi
 fi
 
