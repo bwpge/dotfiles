@@ -24,5 +24,7 @@
   file:
     path: /var/aptly
     state: directory
-    mode: 0777
+    owner: root
+    group: root
+    mode: 0755
   become: true
