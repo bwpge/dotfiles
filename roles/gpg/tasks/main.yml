@@ -5,3 +5,22 @@
     pkg:
       - gpg
   when: os_family_lower == 'debian'
+
+- name: Ensure gpg directory exists
+  file:
+    path: "{{ ansible_env.HOME }}"
+    state: directory
+    mode: 0700
+
+- name: Check for gpg-agent config
+  stat:
+    path: "{{ ansible_env.HOME }}/.gnupg/gpg-agent.conf"
+  register: gpgconf
+  changed_when: false
+
+- name: Install gbp config
+  copy:
+    src: "gbp.conf"
+    dest: "{{ ansible_env.HOME }}/.gnupg/gpg-agent.conf"
+    mode: 0644
+  when: not gpgconf.stat.exists
