@@ -18,9 +18,9 @@
   register: gpgconf
   changed_when: false
 
-- name: Install gbp config
+- name: Install gpg config
   copy:
-    src: "gbp.conf"
+    src: "gpg-agent.conf"
     dest: "{{ ansible_env.HOME }}/.gnupg/gpg-agent.conf"
     mode: 0644
   when: not gpgconf.stat.exists
