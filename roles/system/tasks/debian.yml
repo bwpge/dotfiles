@@ -12,6 +12,7 @@
       - bat
       - fzf
       - jq
+      - python3-venv
       - ripgrep
       - tmux
       - tree

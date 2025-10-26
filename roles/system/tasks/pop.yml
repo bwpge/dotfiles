@@ -1,0 +1,7 @@
+- name: "{{ task_prefix}}Install additional packages"
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - wl-clipboard
+  when: lookup('ansible.builtin.env', 'WAYLAND_DISPLAY', default="") != ""
