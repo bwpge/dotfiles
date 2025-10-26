@@ -56,3 +56,9 @@
     - role: zsh
       tags:
         - zsh
+
+    # run only if specified in tags
+    - role: bash
+      tags:
+        - bash
+        - never
