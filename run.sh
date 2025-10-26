@@ -45,7 +45,7 @@ os_id="$(get_os_id | tr '[:upper:]' '[:lower:]')"
 _task "Running setup for OS ID '${os_id}'"
 
 case "$os_id" in
-    debian|ubuntu|kali)
+    debian|ubuntu|kali|pop)
         debian_setup
         ;;
     macos)
