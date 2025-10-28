@@ -8,7 +8,7 @@
 
 - name: Ensure gpg directory exists
   file:
-    path: "{{ ansible_env.HOME }}"
+    path: "{{ ansible_env.HOME }}/.gnupg"
     state: directory
     mode: 0700
 
