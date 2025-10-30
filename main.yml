@@ -50,6 +50,10 @@
       tags:
         - vim
         - utils
+    - role: wayland
+      tags:
+        - wayland
+        - common
     - role: xfce
       tags:
         - xfce

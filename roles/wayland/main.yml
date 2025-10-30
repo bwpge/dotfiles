@@ -1,0 +1,7 @@
+- name: "Install wayland packages"
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - wl-clipboard
+  when: {{ ansible_env.WAYLAND_DISPLAY | default('') }} != ""
