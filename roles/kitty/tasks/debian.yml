@@ -1,0 +1,50 @@
+- name: "{{ task_prefix }}Check if kitty is installed"
+  stat:
+    path: /opt/kitty.app
+  register: _kitty
+
+- name: "{{ task_prefix }}Install kitty"
+  shell: 'curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin dest=/opt/'
+  become: true
+  when: not _kitty.stat.exists
+
+- name: "{{ task_prefix }}Create kitty link"
+  file:
+    src: /opt/kitty.app/bin/kitty
+    dest: "{{ ansible_env.HOME }}/.local/bin/kitty"
+    state: link
+
+- name: "{{ task_prefix }}Create kitten link"
+  file:
+    src: /opt/kitty.app/bin/kitten
+    dest: "{{ ansible_env.HOME }}/.local/bin/kitten"
+    state: link
+
+- name: "{{ task_prefix }}Ensure config directory exists"
+  file:
+    path: "{{ ansible_env.HOME }}/.config/kitty"
+    state: directory
+
+- name: "{{ task_prefix }}Install config"
+  copy:
+    src: kitty.conf
+    dest: "{{ ansible_env.HOME }}/.config/kitty/kitty.conf"
+    mode: 0644
+
+- name: "{{ task_prefix }}Install right-click kitten"
+  copy:
+    src: right_click_copy_paste.py
+    dest: "{{ ansible_env.HOME }}/.config/kitty/right_click_copy_paste.py"
+    mode: 0644
+
+- name: "{{ task_prefix }}Check for local applications directory"
+  stat:
+    path: "{{ ansible_env.HOME }}/.local/share/applications"
+  register: _appdir
+
+- name: "{{ task_prefix }}Install desktop file"
+  template:
+    src: kitty.desktop.j2
+    dest: "{{ _appdir.stat.path }}/kitty.desktop"
+    mode: 0644
+  when: _appdir.stat.exists and _appdir.stat.isdir
