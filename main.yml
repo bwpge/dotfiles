@@ -62,6 +62,10 @@
         - zsh
 
     # run only if specified in tags
+    - role: 1password
+      tags:
+        - 1password
+        - never
     - role: bash
       tags:
         - bash

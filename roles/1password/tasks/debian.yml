@@ -1,0 +1,21 @@
+- name: "{{ task_prefix }}Check for 1Password command"
+  shell: 'which 1password || true'
+  register: _op
+  changed_when: false
+
+- name: "{{ task_prefix }}Download latest 1Password package"
+  get_url:
+    url: "https://downloads.1password.com/linux/debian/{{ ansible_machine | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }}/stable/1password-latest.deb"
+    dest: "/tmp/1pw.deb"
+  register: downloaded_file
+  when: _op.stdout == ''
+
+- name: "{{ task_prefix }}Install 1Password"
+  command: apt install /tmp/1pw.deb
+  become: true
+  when: _op.stdout == ''
+
+- name: "{{ task_prefix }}Remove tmp file"
+  file:
+    path: '/tmp/1pw.deb'
+    state: absent
