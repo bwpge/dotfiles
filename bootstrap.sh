@@ -10,4 +10,4 @@ else
     git pull
 fi
 
-chmod u+x run.sh && ./run.sh
+./run.sh

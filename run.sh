@@ -60,7 +60,6 @@ esac
 _task "Installing required modules"
 ansible-galaxy install -r requirements.yml
 
-chmod u+x bin/dotfiles
 bin/dotfiles install &> /dev/null
 
 echo -e "\n${cyn}Finished setting up! Run$nc\n"

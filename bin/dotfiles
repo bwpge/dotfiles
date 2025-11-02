@@ -11,7 +11,7 @@ function show_help {
     echo "Commands:"
     echo "  install       add this script to the PATH and create config files"
     echo "  uninstall     uninstall this script and delete associated files"
-    echo "  update        run git pull in \$HOME/.dotfiles"
+    echo "  update        run git pull in dotfile directory"
     echo "  help          same as -h"
     echo ""
     echo "Arguments:"
@@ -24,6 +24,12 @@ function show_help {
 }
 
 dfconf='/etc/dotfiles.conf'
+dfpath="$(python3 -c 'import sys,pathlib;print(pathlib.Path(sys.argv[1]).resolve().parent.parent)' $0)"
+
+__sudo="sudo"
+if [ "$(id -u)" -eq 0 ]; then
+    __sudo=""
+fi
 
 if [ "$1" = "help" ]; then
     show_help
@@ -43,22 +49,21 @@ elif [ "$1" = "install" ]; then
     fi
 
     echo "creating link: $src -> $target"
-    sudo ln -s $src $target
+    $__sudo ln -s $src $target
     echo "creating config file: $dfconf"
-    sudo touch $dfconf
+    $__sudo touch $dfconf
     exit 0
 elif [ "$1" = "uninstall" ]; then
     if [ -e "/usr/local/bin/dotfiles" ]; then
-        sudo rm "/usr/local/bin/dotfiles"
-        sudo rm "$dfconf"
+        $__sudo rm "/usr/local/bin/dotfiles"
+        $__sudo rm "$dfconf"
         echo "dotfiles: successfully uninstalled dotfiles"
     else
         echo "dotfiles: cannot uninstall (not installed)"
     fi
     exit 0
 elif [ "$1" = "update" ]; then
-    git -C $HOME/.dotfiles pull
-    chmod u+x $HOME/.dotfiles/bin/dotfiles
+    git -C $dfpath pull
     exit 0
 fi
 
@@ -98,24 +103,27 @@ if [ -z $playbook ]; then
     playbook="main"
 fi
 
-playbook_path="$HOME/.dotfiles/$playbook.yml"
+playbook_path="$dfpath/$playbook.yml"
 if [ ! -f $playbook_path ]; then
-    echo "error: playbook '$playbook' does not exist (expected $playbook_path)" >&2
+    echo "error: playbook '$playbook' does not exist (expected '$playbook_path' to be a file)" >&2
     exit 1
 fi
 
 echo "Executing playbook: $playbook_path"
+
+ansible_flags=''
+if [ "$(id -u)" -ne 0 ]; then
+    ansible_flags="-K"
+fi
+
 if [ $# -gt 0 ]; then
     echo "Using tags:"
 
-    # fix missing comma, can get annoying to type out
-    tags=""
+    ansible_flags="${ansible_flags} -t "
     for t in "$@"; do
         echo "  - $t"
-        tags="${tags},$t"
+        ansible_flags="${ansible_flags},$t"
     done
-
-    ansible-playbook -K -i localhost, -c local $playbook_path -t $tags
-else
-    ansible-playbook -K -i localhost, -c local $playbook_path
 fi
+
+ansible-playbook -i localhost, -c local $playbook_path $ansible_flags
