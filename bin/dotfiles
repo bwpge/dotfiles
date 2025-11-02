@@ -1,10 +1,16 @@
 #!/bin/bash
 
+set -eo pipefail
+
+dfconf='/etc/dotfiles.conf'
+dfpath="$(python3 -c 'import sys,pathlib;print(pathlib.Path(sys.argv[1]).resolve().parent.parent)' $0)"
+
 function show_help {
     echo "dotfiles - Dotfiles management solution with ansible"
     echo ""
     echo "Usage: dotfiles [-b PLAYBOOK] [TAG...]"
     echo "       dotfiles [un]install"
+    echo "       dotfiles list|ls [PLAYBOOK]"
     echo "       dotfiles help"
     echo "       dotfiles -h"
     echo ""
@@ -12,6 +18,7 @@ function show_help {
     echo "  install       add this script to the PATH and create config files"
     echo "  uninstall     uninstall this script and delete associated files"
     echo "  update        run git pull in dotfile directory"
+    echo "  list|ls       show available tags in a playbook"
     echo "  help          same as -h"
     echo ""
     echo "Arguments:"
@@ -23,8 +30,29 @@ function show_help {
     echo "  -h            show this help menu"
 }
 
-dfconf='/etc/dotfiles.conf'
-dfpath="$(python3 -c 'import sys,pathlib;print(pathlib.Path(sys.argv[1]).resolve().parent.parent)' $0)"
+function get_playbook_path {
+    playbook="$1"
+
+    # check for a default playbook
+    if [ -z "$playbook" ]; then
+        if [ -f "$dfconf" ]; then
+            playbook="$(awk '/playbook/ { print $2 }' $dfconf)"
+        fi
+    fi
+
+    # if still nothing, use default
+    if [ -z $playbook ]; then
+        playbook="main"
+    fi
+
+    playbook_path="$dfpath/$playbook.yml"
+    if [ ! -f $playbook_path ]; then
+        echo "error: playbook '$playbook' does not exist (expected '$playbook_path' to be a file)" >&2
+        exit 1
+    fi
+
+    echo "$playbook_path"
+}
 
 __sudo="sudo"
 if [ "$(id -u)" -eq 0 ]; then
@@ -65,6 +93,16 @@ elif [ "$1" = "uninstall" ]; then
 elif [ "$1" = "update" ]; then
     git -C $dfpath pull
     exit 0
+elif [ "$1" = "list" ] || [ "$1" = "ls" ]; then
+    pbpath="$(get_playbook_path $2)"
+    if [ ! -f "$pbpath" ]; then
+        echo "error: "
+        exit 1
+    fi
+
+    echo "Tags in $pbpath:"
+    awk '/roles:/,0' "$pbpath" | grep '\- [a-zA-Z]' | grep -vE 'role:|never' | sed 's/[[:space:]]*- /  - /' | sort | uniq
+    exit 0
 fi
 
 playbook=""
@@ -91,24 +129,7 @@ while getopts "hb:" opt 2>/dev/null; do
 done
 shift $((OPTIND - 1))
 
-# check for a default playbook
-if [ -z $playbook ]; then
-    if [ -f "$dfconf" ]; then
-        playbook="$(awk '/playbook/ { print $2 }' $dfconf)"
-    fi
-fi
-
-# if still nothing, use default
-if [ -z $playbook ]; then
-    playbook="main"
-fi
-
-playbook_path="$dfpath/$playbook.yml"
-if [ ! -f $playbook_path ]; then
-    echo "error: playbook '$playbook' does not exist (expected '$playbook_path' to be a file)" >&2
-    exit 1
-fi
-
+playbook_path="$(get_playbook_path $playbook)"
 echo "Executing playbook: $playbook_path"
 
 ansible_flags=''
