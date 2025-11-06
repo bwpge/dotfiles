@@ -24,12 +24,17 @@ get_os_id() {
 }
 
 debian_setup() {
+    __sudo="sudo"
+    if [ "$(id -u)" -eq 0 ]; then
+        __sudo=""
+    fi
+
     _task "Updating system"
-    sudo apt update -y
-    sudo apt upgrade -y
+    $__sudo apt update -y
+    $__sudo apt upgrade -y
 
     _task "Installing ansible"
-    sudo apt install -y ansible
+    $__sudo apt install -y ansible
 }
 
 macos_setup() {
