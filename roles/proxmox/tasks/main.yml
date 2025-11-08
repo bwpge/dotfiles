@@ -1,0 +1,43 @@
+- name: Create non-subscription proxmox source
+  copy:
+    dest: /etc/apt/sources.list.d/proxmox.sources
+    content: |
+      Types: deb
+      URIs: http://download.proxmox.com/debian/pve
+      Suites: trixie
+      Components: pve-no-subscription
+      Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
+  become: true
+
+- name: Remove pve-enterprise source
+  file:
+    path: /etc/apt/sources.list.d/pve-enterprise.sources
+    state: absent
+  become: true
+
+- name: Create non-subscription ceph source
+  copy:
+    dest: /etc/apt/sources.list.d/ceph.sources
+    content: |
+      Types: deb
+      URIs: http://download.proxmox.com/debian/ceph-squid
+      Suites: trixie
+      Components: no-subscription
+      Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
+  become: true
+
+- name: Read old proxmoxlib contents
+  shell: cat /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+  register: oldpxlib
+  changed_when: false
+
+- name: Remove nag popup
+  shell: >
+    sed -i.bak -z
+    "s/res === null ||\n\s* res === undefined ||\n\s* \!res ||\n\s* res.data.status.toLowerCase() \!== 'active'/false/g"
+    /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+    && cat /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+  register: newpxlib
+  become: true
+  changed_when: oldpxlib.stdout != newpxlib.stdout
+  notify: Restart pveproxy service
