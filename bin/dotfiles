@@ -8,13 +8,14 @@ dfpath="$(python3 -c 'import sys,pathlib;print(pathlib.Path(sys.argv[1]).resolve
 function show_help {
     echo "dotfiles - Dotfiles management solution with ansible"
     echo ""
-    echo "Usage: dotfiles [-b PLAYBOOK] [TAG...]"
+    echo "Usage: dotfiles run [-b PLAYBOOK] [TAG...]"
     echo "       dotfiles [un]install"
     echo "       dotfiles list|ls [PLAYBOOK]"
     echo "       dotfiles help"
     echo "       dotfiles -h"
     echo ""
     echo "Commands:"
+    echo "  run           execute with given playbook and tags"
     echo "  install       add this script to the PATH and create config files"
     echo "  uninstall     uninstall this script and delete associated files"
     echo "  update        run git pull in dotfile directory"
@@ -59,7 +60,7 @@ if [ "$(id -u)" -eq 0 ]; then
     __sudo=""
 fi
 
-if [ "$1" = "help" ]; then
+if [ "$1" = "help" ] || [ "$1" = "" ]; then
     show_help
     exit 0
 elif [ "$1" = "install" ]; then
@@ -103,6 +104,9 @@ elif [ "$1" = "list" ] || [ "$1" = "ls" ]; then
     echo "Tags in $pbpath:"
     awk '/roles:/,0' "$pbpath" | grep '\- [a-zA-Z]' | grep -vE 'role:|never' | sed 's/[[:space:]]*- /  - /' | sort | uniq
     exit 0
+elif [ "$1" != "run" ]; then
+    echo "error: unknown command '$1'"
+    exit 1
 fi
 
 playbook=""
