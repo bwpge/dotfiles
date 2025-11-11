@@ -5,6 +5,8 @@ if command dotfiles &>/dev/null; then
     exit 0
 fi
 
+dfpath="/opt/dotfiles"
+
 bred='\033[1;31m'
 cyn='\033[0;36m'
 bcyn='\033[1;36m'
@@ -51,7 +53,7 @@ macos_setup() {
 }
 
 common_setup() {
-    src="/opt/dotfiles/bin/dotfiles"
+    src="$dfpath/bin/dotfiles"
     target="/usr/local/bin/dotfiles"
 
     if [ ! -f "$src" ]; then
@@ -85,7 +87,7 @@ esac
 common_setup
 
 _task "Installing required modules"
-ansible-galaxy install -r requirements.yml
+ansible-galaxy install -r "$dfpath/requirements.yml"
 
 echo -e "\n${cyn}Finished setting up! Run$nc\n"
 echo -e "${bcyn}    dotfiles help$nc"
