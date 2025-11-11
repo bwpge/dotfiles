@@ -1,13 +1,16 @@
 #!/bin/sh
 
-dfpath="$HOME/.dotfiles"
+set -euo pipefail
 
-if [ ! -d "$dfpath" ]; then
-    git clone https://github.com/bwpge/dotfiles.git "$dfpath"
-    cd "$dfpath"
-else
-    cd "$dfpath"
-    git pull
+dfpath="/opt/dotfiles"
+
+__sudo="sudo"
+if [ "$(id -u)" -eq 0 ]; then
+    __sudo=""
 fi
 
-./run.sh
+if [ ! -d "$dfpath" ]; then
+    $__sudo git clone https://github.com/bwpge/dotfiles.git "$dfpath"
+fi
+
+$dfpath/install.sh

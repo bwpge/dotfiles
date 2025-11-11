@@ -1,11 +1,20 @@
 #!/bin/bash
 
+if command dotfiles &>/dev/null; then
+    echo "dotfiles already installed"
+    exit 0
+fi
+
 bred='\033[1;31m'
 cyn='\033[0;36m'
 bcyn='\033[1;36m'
-bylw='\033[1;33m'
 bold='\033[1m'
 nc='\033[0m'
+
+__sudo="sudo"
+if [ "$(id -u)" -eq 0 ]; then
+    __sudo=""
+fi
 
 _task() {
     echo -e "${bold}[+] $1$nc"
@@ -24,11 +33,6 @@ get_os_id() {
 }
 
 debian_setup() {
-    __sudo="sudo"
-    if [ "$(id -u)" -eq 0 ]; then
-        __sudo=""
-    fi
-
     _task "Updating system"
     $__sudo apt update -y
     $__sudo apt upgrade -y
@@ -44,6 +48,22 @@ macos_setup() {
 
     _task "Installing ansible"
     brew install ansible
+}
+
+common_setup() {
+    src="/opt/dotfiles/bin/dotfiles"
+    target="/usr/local/bin/dotfiles"
+
+    if [ ! -f "$src" ]; then
+        _err "error: could not determine path to dotfiles script" >&2
+        exit 1
+    fi
+
+    echo "creating link: $src -> $target"
+    $__sudo ln -sf $src $target
+
+    echo "creating config file: $dfconf"
+    $__sudo touch $dfconf
 }
 
 os_id="$(get_os_id | tr '[:upper:]' '[:lower:]')"
@@ -62,10 +82,10 @@ case "$os_id" in
         ;;
 esac
 
+common_setup
+
 _task "Installing required modules"
 ansible-galaxy install -r requirements.yml
-
-bin/dotfiles install &> /dev/null
 
 echo -e "\n${cyn}Finished setting up! Run$nc\n"
 echo -e "${bcyn}    dotfiles help$nc"

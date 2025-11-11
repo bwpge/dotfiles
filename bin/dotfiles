@@ -1,154 +1,158 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-set -eo pipefail
+import argparse
+import shutil
+import os
+import subprocess
+import sys
+from pathlib import Path
 
-dfconf='/etc/dotfiles.conf'
-dfpath="$(python3 -c 'import sys,pathlib;print(pathlib.Path(sys.argv[1]).resolve().parent.parent)' $0)"
+DF_DIR = Path("/opt/dotfiles")
+DF_BIN_FILE = Path("/usr/local/bin/dotfiles")
+DF_CONF_FILE = Path("/etc/dotfiles.conf")
 
-function show_help {
-    echo "dotfiles - Dotfiles management solution with ansible"
-    echo ""
-    echo "Usage: dotfiles run [-b PLAYBOOK] [TAG...]"
-    echo "       dotfiles [un]install"
-    echo "       dotfiles list|ls [PLAYBOOK]"
-    echo "       dotfiles help"
-    echo "       dotfiles -h"
-    echo ""
-    echo "Commands:"
-    echo "  run           execute with given playbook and tags"
-    echo "  install       add this script to the PATH and create config files"
-    echo "  uninstall     uninstall this script and delete associated files"
-    echo "  update        run git pull in dotfile directory"
-    echo "  list|ls       show available tags in a playbook"
-    echo "  help          same as -h"
-    echo ""
-    echo "Arguments:"
-    echo "  TAG...        one or more tags passed directly to ansible-playbook with '-t'"
-    echo ""
-    echo "Options:"
-    echo "  -b PLAYBBOK   the PLAYBOOK to execute, without yml extension (default: main)"
-    echo "                NOTE: this option must be used before any TAG arguments"
-    echo "  -h            show this help menu"
-}
 
-function get_playbook_path {
-    playbook="$1"
+def bail(msg):
+    print(f"error: {msg}", file=sys.stderr)
+    exit(1)
 
-    # check for a default playbook
-    if [ -z "$playbook" ]; then
-        if [ -f "$dfconf" ]; then
-            playbook="$(awk '/playbook/ { print $2 }' $dfconf)"
-        fi
-    fi
 
-    # if still nothing, use default
-    if [ -z $playbook ]; then
-        playbook="main"
-    fi
+def get_playbook_path(playbook: str | None) -> str:
+    if not playbook and DF_CONF_FILE.is_file():
+        with open(DF_CONF_FILE) as f:
+            for line in f:
+                if "playbook" in line:
+                    parts = line.strip().split()
+                    if len(parts) >= 2:
+                        playbook = parts[1]
+                        break
 
-    playbook_path="$dfpath/$playbook.yml"
-    if [ ! -f $playbook_path ]; then
-        echo "error: playbook '$playbook' does not exist (expected '$playbook_path' to be a file)" >&2
-        exit 1
-    fi
+    if not playbook:
+        playbook = "main"
 
-    echo "$playbook_path"
-}
+    playbook_path = DF_DIR.joinpath(f"{playbook}.yml")
 
-__sudo="sudo"
-if [ "$(id -u)" -eq 0 ]; then
-    __sudo=""
-fi
+    if not playbook_path.is_file():
+        bail(
+            f"error: playbook '{playbook}' does not exist "
+            f"(expected '{playbook_path}' to be a file)"
+        )
 
-if [ "$1" = "help" ] || [ "$1" = "" ]; then
-    show_help
-    exit 0
-elif [ "$1" = "install" ]; then
-    ctx="dotfiles install"
-    target="/usr/local/bin/dotfiles"
-    if [ -e $target ]; then
-        echo "dotfiles: cannot install (already installed)"
-        exit 0
-    fi
+    return playbook_path
 
-    src="$(realpath $0)"
-    if [ -z $src ]; then
-        echo "error: could not determine path to dotfiles script" >&2
-        exit 1
-    fi
 
-    echo "creating link: $src -> $target"
-    $__sudo ln -s $src $target
-    echo "creating config file: $dfconf"
-    $__sudo touch $dfconf
-    exit 0
-elif [ "$1" = "uninstall" ]; then
-    if [ -e "/usr/local/bin/dotfiles" ]; then
-        $__sudo rm "/usr/local/bin/dotfiles"
-        $__sudo rm "$dfconf"
-        echo "dotfiles: successfully uninstalled dotfiles"
-    else
-        echo "dotfiles: cannot uninstall (not installed)"
-    fi
-    exit 0
-elif [ "$1" = "update" ]; then
-    git -C $dfpath pull
-    exit 0
-elif [ "$1" = "list" ] || [ "$1" = "ls" ]; then
-    pbpath="$(get_playbook_path $2)"
-    if [ ! -f "$pbpath" ]; then
-        echo "error: "
-        exit 1
-    fi
+def cmd_uninstall(purge: bool):
+    if os.geteuid() != 0:
+        bail("'uninstall' command requires root")
 
-    echo "Tags in $pbpath:"
-    awk '/roles:/,0' "$pbpath" | grep '\- [a-zA-Z]' | grep -vE 'role:|never' | sed 's/[[:space:]]*- /  - /' | sort | uniq
-    exit 0
-elif [ "$1" != "run" ]; then
-    echo "error: unknown command '$1'"
-    exit 1
-fi
+    if DF_BIN_FILE.exists():
+        print(f"removing link: {DF_BIN_FILE}")
+        DF_BIN_FILE.unlink()
 
-playbook=""
-while getopts "hb:" opt 2>/dev/null; do
-    case $opt in
-        b)
-            playbook="$OPTARG"
-            ;;
-        h)
-            show_help
-            exit 0
-            ;;
-        \?)
-            echo "error: invalid option: -$OPTARG" >&2
-            show_help
-            exit 1
-            ;;
-        :)
-            echo "error: -$OPTARG requires an argument" >&2
-            show_help
-            exit 1
-            ;;
-    esac
-done
-shift $((OPTIND - 1))
+    if purge and DF_CONF_FILE.exists():
+        print(f"removing config file: {DF_CONF_FILE}")
+        DF_CONF_FILE.unlink()
 
-playbook_path="$(get_playbook_path $playbook)"
-echo "Executing playbook: $playbook_path"
+    if DF_DIR.exists():
+        print(f"removing dotfiles directory: {DF_DIR}")
+        shutil.rmtree(DF_DIR)
 
-ansible_flags=''
-if [ "$(id -u)" -ne 0 ]; then
-    ansible_flags="-K"
-fi
 
-if [ $# -gt 0 ]; then
-    echo "Using tags:"
+def cmd_update():
+    if os.geteuid() != 0:
+        bail("'uninstall' command requires root")
 
-    ansible_flags="${ansible_flags} -t "
-    for t in "$@"; do
-        echo "  - $t"
-        ansible_flags="${ansible_flags},$t"
-    done
-fi
+    subprocess.run(["git", "-C", str(DF_DIR.resolve()), "pull"], check=True)
 
-ansible-playbook -i localhost, -c local $playbook_path $ansible_flags
+
+def cmd_list(playbook: str | None):
+    pbpath = get_playbook_path(playbook)
+    if not pbpath.exists():
+        bail(f"playbook '{pbpath}' does not exist")
+
+    print(f"Tags in {pbpath}:")
+    with open(pbpath) as f:
+        in_roles = False
+        seen = set()
+        for line in f:
+            if "roles:" in line:
+                in_roles = True
+            s = line.strip()
+            if in_roles and s.startswith("- ") and ":" not in s:
+                tag = s.lstrip("- ").strip()
+                if tag and tag not in ("never", "always"):
+                    seen.add(tag)
+        for tag in sorted(seen):
+            print(f"  - {tag}")
+
+
+def cmd_run(playbook: str | None, tags: list[str]):
+    pbpath = get_playbook_path(playbook)
+    print(f"Executing playbook: {pbpath}")
+
+    ansible_flags = []
+    if os.geteuid() != 0:
+        ansible_flags.append("-K")
+
+    if tags:
+        print("Using tags:")
+        print("\n".join(f"  - {t}" for t in tags))
+        ansible_flags += ["-t", ",".join(tags)]
+
+    cmd = [
+        "ansible-playbook",
+        "-i",
+        "localhost,",
+        "-c",
+        "local",
+        pbpath,
+    ] + ansible_flags
+    subprocess.run(cmd, check=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Dotfiles management solution with ansible"
+    )
+    subparsers = parser.add_subparsers(dest="command")
+    subparsers.add_parser("install", help="install the dotfiles script")
+    p_uninstall = subparsers.add_parser(
+        "uninstall", help="remove installed script and config"
+    )
+    p_uninstall.add_argument(
+        "-p", "--purge", help="delete config files when uninstalling"
+    )
+    subparsers.add_parser("update", help="update dotfiles repository")
+    p_list = subparsers.add_parser(
+        "list", aliases=["ls"], help="list tags in a playbook"
+    )
+    p_list.add_argument("playbook", nargs="?", help="optional playbook name")
+    p_run = subparsers.add_parser("run", help="run a playbook")
+    p_run.add_argument("-b", "--playbook", help="specify playbook to run")
+    p_run.add_argument(
+        "tags", nargs="*", help="optional tags to pass to ansible with -t"
+    )
+    subparsers.add_parser("help", help="show this help")
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        exit(0)
+
+    args = parser.parse_args()
+
+    if args.command == "help":
+        parser.print_help()
+    elif args.command == "uninstall":
+        cmd_uninstall(args.purge)
+    elif args.command == "update":
+        cmd_update()
+    elif args.command in ("list", "ls"):
+        cmd_list(getattr(args, "playbook", None))
+    elif args.command == "run":
+        cmd_run(args.playbook, args.tags)
+    else:
+        bail(f"unknown command '{args.command}'")
+
+
+if __name__ == "__main__":
+    main()
