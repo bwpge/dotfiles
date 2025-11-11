@@ -6,6 +6,7 @@ if command dotfiles &>/dev/null; then
 fi
 
 dfpath="/opt/dotfiles"
+dfconf="/etc/dotfiles.yml"
 
 bred='\033[1;31m'
 cyn='\033[0;36m'
