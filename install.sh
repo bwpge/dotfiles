@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if command dotfiles &>/dev/null; then
     echo "dotfiles already installed"
     exit 0
@@ -8,11 +10,11 @@ fi
 dfpath="/opt/dotfiles"
 dfconf="/etc/dotfiles.yml"
 
-bred='\033[1;31m'
-cyn='\033[0;36m'
-bcyn='\033[1;36m'
-bold='\033[1m'
-nc='\033[0m'
+BRED='\033[1;31m'
+CYAN='\033[0;36m'
+BCYAN='\033[1;36m'
+BGREEN='\033[1;32m'
+NC='\033[0m'
 
 __sudo="sudo"
 if [ "$(id -u)" -eq 0 ]; then
@@ -20,11 +22,11 @@ if [ "$(id -u)" -eq 0 ]; then
 fi
 
 _task() {
-    echo -e "${bold}[+] $1$nc"
+    echo -e "${BGREEN}[+] $1$NC"
 }
 
 _err() {
-    echo -e "${bred} error: $1$nc"
+    echo -e "${BRED} error: $1$NC"
 }
 
 get_os_id() {
@@ -90,6 +92,6 @@ common_setup
 _task "Installing required modules"
 ansible-galaxy install -r "$dfpath/requirements.yml"
 
-echo -e "\n${cyn}Finished setting up! Run$nc\n"
-echo -e "${bcyn}    dotfiles help$nc"
-echo -e "\n${cyn}for more information$nc"
+echo -e "\n${CYAN}Finished setting up! Run$NC\n"
+echo -e "${BCYAN}    dotfiles help$NC"
+echo -e "\n${CYAN}for more information$NC"
