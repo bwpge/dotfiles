@@ -11,25 +11,35 @@ DF_DIR = Path("/opt/dotfiles")
 DF_BIN_FILE = Path("/usr/local/bin/dotfiles")
 DF_CONF_FILE = Path("/etc/dotfiles.conf")
 
+CONFIG = {}
+
 
 def bail(msg):
     print(f"error: {msg}", file=sys.stderr)
     exit(1)
 
 
+def load_config():
+    if not DF_CONF_FILE.is_file():
+        return {}
+
+    with open(DF_CONF_FILE) as f:
+        for line in f:
+            s = line.strip()
+            if s.startswith("#") or not line:
+                continue
+
+            splits = s.split(maxsplit=1)
+            if len(splits) != 2:
+                bail(f"config error: invalid syntax: '{line}'")
+
+            k = splits[0].strip()
+            v = splits[1].strip()
+            CONFIG[k] = v
+
+
 def get_playbook_path(playbook: str | None) -> str:
-    if not playbook and DF_CONF_FILE.is_file():
-        with open(DF_CONF_FILE) as f:
-            for line in f:
-                if "playbook" in line:
-                    parts = line.strip().split()
-                    if len(parts) >= 2:
-                        playbook = parts[1]
-                        break
-
-    if not playbook:
-        playbook = "main"
-
+    playbook = CONFIG.get("playbook", "main")
     playbook_path = DF_DIR.joinpath(f"{playbook}.yml")
 
     if not playbook_path.is_file():
@@ -139,6 +149,7 @@ def main():
         exit(0)
 
     args = parser.parse_args()
+    load_config()
 
     if args.command == "help":
         parser.print_help()
