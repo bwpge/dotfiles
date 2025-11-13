@@ -8,7 +8,7 @@ if command dotfiles &>/dev/null; then
 fi
 
 dfpath="/opt/dotfiles"
-dfconf="/etc/dotfiles.yml"
+dfconf="/etc/dotfiles.conf"
 
 BRED='\033[1;31m'
 CYAN='\033[0;36m'
