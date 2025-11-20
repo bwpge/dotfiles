@@ -39,7 +39,7 @@
 
 - name: "{{ task_prefix }}Fix zsh suggest highlight"
   shell: >
-    sed -i 's/^\([[:space:]]\+\)\(ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE\)/\1# \2/gp'
+    sed -i 's/^\([[:space:]]\+\)\(ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE\)/\1# \2/g'
     {{ zsh_config.path }} && cat {{ zsh_config.path }}
   register: newzsh
   become: true

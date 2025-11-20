@@ -1,0 +1,20 @@
+- name: "{{ task_prefix }}Install colorscheme"
+  copy:
+    src: neotechbase.colorscheme
+    dest: "/usr/share/qtermwidget6/color-schemes/Neotechbase.colorscheme"
+    mode: 0644
+  become: true
+
+- name: "{{ task_prefix }}Set config file fact"
+  set_fact:
+    qtermconf: "{{ ansible_env.HOME }}/.config/qterminal.org/qterminal.ini"
+
+- name: "{{ task_prefix }}Read qterm config"
+  shell: "cat {{ qtermconf }}"
+  register: oldqterm
+  changed_when: false
+
+- name: "{{task_prefix }}Set colorscheme"
+  shell: "sed -i 's/^colorScheme=.*/colorScheme=Neotechbase/g' {{ qtermconf }} && cat {{ qtermconf }}"
+  register: newqterm
+  changed_when: oldqterm.stdout != newqterm.stdout

@@ -40,11 +40,13 @@
     - role: kitty
       tags:
         - kitty
-        - utils
-        - kali
     - role: nvim
       tags:
         - nvim
+        - utils
+    - role: tmux
+      tags:
+        - tmux
         - utils
     - role: vim
       tags:
@@ -69,4 +71,8 @@
     - role: bash
       tags:
         - bash
+        - never
+    - role: qterm
+      tags:
+        - qterm
         - never

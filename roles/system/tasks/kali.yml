@@ -14,9 +14,7 @@
   apt:
     state: latest
     pkg:
-      - joplin
       - kali-wallpapers-all
-      - obsidian
       - seclists
 
 - name: "{{ task_prefix}}Check for ssh key"
