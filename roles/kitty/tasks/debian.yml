@@ -4,7 +4,7 @@
   register: _kitty
 
 - name: "{{ task_prefix }}Install kitty"
-  shell: 'curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin dest=/opt/'
+  shell: 'curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin dest=/opt/ launch=n'
   become: true
   when: not _kitty.stat.exists
 
