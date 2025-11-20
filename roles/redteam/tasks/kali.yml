@@ -1,0 +1,41 @@
+- name: "{{ task_prefix}}Add red team shell block"
+  blockinfile:
+    path: "{{ shell_item.path }}"
+    block: |
+      function attack {
+          name="$1"
+          target="$2"
+
+          if [ -z "$name" ]; then
+              echo "error: target name is required"
+              return 1
+          fi
+          if tmux has-session -t "$name" 2>/dev/null; then
+              tmux attach-session -t "$name"
+              return 0
+          fi
+
+          if [ -z "$target" ]; then
+              echo "error: target IP is required"
+              return 1
+          fi
+
+          mkdir -p "$HOME/boxes/$name" && \
+              tmux new-session -d -c "$HOME/boxes/$name" -s "$name" -e target="$target" -e VICTIM_NAME="$name" && \
+              tmux splitw -t "$name" -v -c "$HOME/boxes/$name" && \
+              tmux rename-window -t "$name:1" recon && \
+              tmux neww -c "$HOME/boxes/$name" -t "$name:" && \
+              tmux neww -c "$HOME/boxes/$name" -t "$name:" && \
+              tmux selectw -t "$name:1" && \
+              tmux selectp -t "$name:1.1" && \
+              tmux attach-session -t "$name"
+      }
+    append_newline: true
+    prepend_newline: true
+    marker: "# {mark} dotfile:redteam"
+    marker_begin: '>>>'
+    marker_end: '<<<'
+  when: shell_item.exists
+  loop: "{{ shell_configs }}"
+  loop_control:
+    loop_var: shell_item

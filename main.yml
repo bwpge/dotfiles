@@ -52,6 +52,9 @@
       tags:
         - vim
         - utils
+    - role: redteam
+      tags:
+        - redteam
     - role: wayland
       tags:
         - wayland
