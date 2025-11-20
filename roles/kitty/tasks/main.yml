@@ -10,3 +10,19 @@
   vars:
     task_prefix: "{{ os_id }} | "
   when: os_family_lower != os_id
+
+- name: "Add kitty ssh fix"
+  blockinfile:
+    path: "{{ shell_item.path }}"
+    block: |
+      # fixes unknown terminal issues with ssh
+      [[ "$TERM" == "xterm-kitty" ]] && alias ssh="TERM=xterm-256color ssh"
+    append_newline: true
+    prepend_newline: true
+    marker: "# {mark} dotfile:kitty"
+    marker_begin: '>>>'
+    marker_end: '<<<'
+  when: shell_item.exists
+  loop: "{{ shell_configs }}"
+  loop_control:
+    loop_var: shell_item
