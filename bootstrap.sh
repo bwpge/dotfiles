@@ -2,15 +2,13 @@
 
 set -euo pipefail
 
-dfpath="/opt/dotfiles"
-
-__sudo="sudo"
-if [ "$(id -u)" -eq 0 ]; then
-    __sudo=""
+dfdir="/opt/dotfiles"
+if [ ! -w "/opt" ]; then
+    dfdir="$HOME/.dotfiles"
 fi
 
-if [ ! -d "$dfpath" ]; then
-    $__sudo git clone https://github.com/bwpge/dotfiles.git "$dfpath"
+if [ ! -d "$dfdir" ]; then
+    git clone https://github.com/bwpge/dotfiles.git "$dfdir"
 fi
 
-$dfpath/install.sh
+$dfdir/install.sh "$dfdir"

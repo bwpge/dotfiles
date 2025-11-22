@@ -7,7 +7,7 @@ if command dotfiles &>/dev/null; then
     exit 0
 fi
 
-dfpath="/opt/dotfiles"
+dfdir="$1"
 dfconf="/etc/dotfiles.conf"
 
 BRED='\033[1;31m'
@@ -28,6 +28,12 @@ _task() {
 _err() {
     echo -e "${BRED} error: $1$NC"
 }
+
+if [ ! -d "$dfdir" ]; then
+    _err "invalid install directory '$dfdir'"
+    exit 1
+fi
+_task "Using install directory: $dfdir"
 
 get_os_id() {
     if [ -f /etc/os-release ]; then
@@ -56,7 +62,7 @@ macos_setup() {
 }
 
 common_setup() {
-    src="$dfpath/bin/dotfiles"
+    src="$dfdir/bin/dotfiles"
     target="/usr/local/bin/dotfiles"
 
     if [ ! -f "$src" ]; then
@@ -90,7 +96,7 @@ esac
 common_setup
 
 _task "Installing required modules"
-ansible-galaxy install -r "$dfpath/requirements.yml"
+ansible-galaxy install -r "$dfdir/requirements.yml"
 
 echo -e "\n${CYAN}Finished setting up! Run$NC\n"
 echo -e "${BCYAN}    dotfiles help$NC"

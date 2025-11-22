@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-DF_DIR = Path("/opt/dotfiles")
+DF_DIR = Path(__file__).resolve().parent.parent
 DF_BIN_FILE = Path("/usr/local/bin/dotfiles")
 DF_CONF_FILE = Path("/etc/dotfiles.conf")
 
@@ -69,9 +69,6 @@ def cmd_uninstall(purge: bool):
 
 
 def cmd_update():
-    if os.geteuid() != 0:
-        bail("'update' command requires root")
-
     git_cmd = f"git -C {DF_DIR}"
     subprocess.run(
         f"{git_cmd} fetch && {git_cmd} log main..origin/main --oneline | grep -q . && {git_cmd} reset --hard origin/main || echo 'Already up to date.'",
