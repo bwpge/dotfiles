@@ -70,9 +70,14 @@ def cmd_uninstall(purge: bool):
 
 def cmd_update():
     if os.geteuid() != 0:
-        bail("'uninstall' command requires root")
+        bail("'update' command requires root")
 
-    subprocess.run(["git", "-C", str(DF_DIR.resolve()), "pull"], check=True)
+    git_cmd = f"git -C {DF_DIR}"
+    subprocess.run(
+        f"{git_cmd} fetch && {git_cmd} log main..origin/main --oneline | grep -q . && {git_cmd} reset --hard origin/main || echo 'Already up to date.'",
+        shell=True,
+        check=False,
+    )
 
 
 def cmd_list(playbook: str | None):
