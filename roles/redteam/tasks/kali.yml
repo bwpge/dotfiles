@@ -34,6 +34,12 @@
               tmux selectp -t "$name:1.1" && \
               tmux attach-session -t "$name"
       }
+
+      function tvpn {
+          vpnfile="$1"
+          [ -z "$vpnfile" ] && echo "error: vpn connection file required" && exit 1
+          tmux new -s vpn -A "sudo openvpn $1"
+      }
     append_newline: true
     prepend_newline: true
     marker: "# {mark} dotfile:redteam"
