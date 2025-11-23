@@ -20,12 +20,16 @@
               return 1
           fi
 
-          mkdir -p "$HOME/boxes/$name" && \
-              tmux new-session -d -c "$HOME/boxes/$name" -s "$name" -e target="$target" -e VICTIM_NAME="$name" && \
-              tmux splitw -t "$name" -v -c "$HOME/boxes/$name" && \
+          boxdir="$HOME/boxes/$name"
+          mkdir -p "$boxdir" && \
+              tmux new-session -d -c "$boxdir" -s "$name" -e target="$target" -e VICTIM_NAME="$name" && \
+              tmux splitw -t "$name" -v -c "$boxdir" && \
               tmux rename-window -t "$name:1" recon && \
-              tmux neww -c "$HOME/boxes/$name" -t "$name:" && \
-              tmux neww -c "$HOME/boxes/$name" -t "$name:" && \
+              tmux neww -c "$boxdir" -t "$name:" && \
+              tmux neww -c "$boxdir" -t "$name:" && \
+              tmux neww -c "$boxdir" -t "$name:" "ping -i 10 $target" && \
+              tmux setw -t "$name:4" monitor-activity off && \
+              tmux rename-window -t "$name:4" ping && \
               tmux selectw -t "$name:1" && \
               tmux selectp -t "$name:1.1" && \
               tmux attach-session -t "$name"
