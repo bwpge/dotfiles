@@ -87,7 +87,8 @@ endfunction
 noremap <leader>I :call Inspect()<CR>
 
 " colors
-hi LineNr          ctermfg=8  ctermbg=0
+hi clear LineNr
+hi LineNr          ctermfg=8
 hi CursorLineNr    ctermfg=11 ctermbg=0 cterm=bold
 hi VertSplit       ctermfg=8  ctermbg=0
 hi StatusLine      ctermfg=7  ctermbg=8
