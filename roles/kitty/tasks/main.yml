@@ -1,3 +1,20 @@
+- name: "{{ task_prefix }}Ensure config directory exists"
+  file:
+    path: "{{ ansible_env.HOME }}/.config/kitty"
+    state: directory
+
+- name: "{{ task_prefix }}Install config"
+  copy:
+    src: kitty.conf
+    dest: "{{ ansible_env.HOME }}/.config/kitty/kitty.conf"
+    mode: 0644
+
+- name: "{{ task_prefix }}Install right-click kitten"
+  copy:
+    src: right_click_copy_paste.py
+    dest: "{{ ansible_env.HOME }}/.config/kitty/right_click_copy_paste.py"
+    mode: 0644
+
 - name: Import OS family tasks
   include_tasks: "{{ item }}"
   with_fileglob: "{{ os_family_lower }}.yml"
@@ -15,7 +32,7 @@
   blockinfile:
     path: "{{ shell_item.path }}"
     block: |
-      # fixes unknown terminal issues with ssh
+      # fixes terminal issues with ssh
       [[ "$TERM" == "xterm-kitty" ]] && alias ssh="TERM=xterm-256color ssh"
     append_newline: true
     prepend_newline: true
