@@ -3,7 +3,7 @@
     path: "{{ shell_item.path }}"
     block: |
       function attack {
-          name="$1"
+          name="$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^[:alnum:]]/_/g')"
           target="$2"
 
           if [ -z "$name" ]; then
@@ -22,7 +22,7 @@
 
           boxdir="$HOME/boxes/$name"
           mkdir -p "$boxdir" && \
-              tmux new-session -d -c "$boxdir" -s "$name" -e target="$target" -e VICTIM_NAME="$name" && \
+              tmux new-session -d -c "$boxdir" -s "$name" -e TARGET="$target" -e TARGET_NAME="$name" -e BOXDIR="$boxdir" && \
               tmux splitw -t "$name" -v -c "$boxdir" && \
               tmux rename-window -t "$name:1" recon && \
               tmux neww -c "$boxdir" -t "$name:" && \
@@ -33,12 +33,6 @@
               tmux selectw -t "$name:1" && \
               tmux selectp -t "$name:1.1" && \
               tmux attach-session -t "$name"
-      }
-
-      function tvpn {
-          vpnfile="$1"
-          [ -z "$vpnfile" ] && echo "error: vpn connection file required" && exit 1
-          tmux new -s vpn -A "sudo openvpn $1"
       }
     append_newline: true
     prepend_newline: true

@@ -16,3 +16,24 @@
     src: ".tmux.conf"
     dest: "{{ ansible_env.HOME }}/.tmux.conf"
     mode: 0644
+
+- name: "Add tmux shell block"
+  blockinfile:
+    path: "{{ shell_item.path }}"
+    block: |
+      function tvpn {
+          vpnfile="$1"
+          [ -z "$vpnfile" ] && echo "error: vpn connection file required" && exit 1
+          tmux new -s vpn -A "sudo openvpn $1"
+      }
+
+      alias tclear='cur=$(tmux display -p "#I"); for w in $(tmux lsw -F "#I"); do tmux selectw -t $w; done; tmux selectw -t $cur'
+    append_newline: true
+    prepend_newline: true
+    marker: "# {mark} dotfile:tmux"
+    marker_begin: '>>>'
+    marker_end: '<<<'
+  when: shell_item.exists
+  loop: "{{ shell_configs }}"
+  loop_control:
+    loop_var: shell_item
