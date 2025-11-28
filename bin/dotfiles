@@ -39,7 +39,8 @@ def load_config():
 
 
 def get_playbook_path(playbook: str | None) -> str:
-    playbook = CONFIG.get("playbook", "main")
+    if not playbook:
+        playbook = CONFIG.get("playbook", "main")
     playbook_path = DF_DIR.joinpath(f"{playbook}.yml")
 
     if not playbook_path.is_file():
