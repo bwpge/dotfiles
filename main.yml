@@ -79,3 +79,7 @@
       tags:
         - qterm
         - never
+    - role: sublime
+      tags:
+        - sublime
+        - never
