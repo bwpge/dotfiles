@@ -9,7 +9,10 @@ from pathlib import Path
 
 DF_DIR = Path(__file__).resolve().parent.parent
 DF_BIN_FILE = Path("/usr/local/bin/dotfiles")
-DF_CONF_FILE = Path("/etc/dotfiles.conf")
+DF_CONF_FILES = [
+    Path(f"{DF_DIR}/dotfiles.conf"),
+    Path("/etc/dotfiles.conf"),
+]
 
 CONFIG = {}
 
@@ -20,22 +23,24 @@ def bail(msg):
 
 
 def load_config():
-    if not DF_CONF_FILE.is_file():
-        return {}
+    for p in DF_CONF_FILES:
+        if not p.is_file():
+            continue
 
-    with open(DF_CONF_FILE) as f:
-        for line in f:
-            s = line.strip()
-            if s.startswith("#") or not line:
-                continue
+        with open(p) as f:
+            for line in f:
+                s = line.strip()
+                if s.startswith("#") or not line:
+                    continue
 
-            splits = s.split(maxsplit=1)
-            if len(splits) != 2:
-                bail(f"config error: invalid syntax: '{line}'")
+                splits = s.split(maxsplit=1)
+                if len(splits) != 2:
+                    bail(f"config error: invalid syntax: '{line}'")
 
-            k = splits[0].strip()
-            v = splits[1].strip()
-            CONFIG[k] = v
+                k = splits[0].strip()
+                v = splits[1].strip()
+                CONFIG[k] = v
+            return
 
 
 def get_playbook_path(playbook: str | None) -> str:
@@ -53,16 +58,18 @@ def get_playbook_path(playbook: str | None) -> str:
 
 
 def cmd_uninstall(purge: bool):
-    if os.geteuid() != 0:
-        bail("'uninstall' command requires root")
-
     if DF_BIN_FILE.exists():
         print(f"removing link: {DF_BIN_FILE}")
         DF_BIN_FILE.unlink()
 
-    if purge and DF_CONF_FILE.exists():
-        print(f"removing config file: {DF_CONF_FILE}")
-        DF_CONF_FILE.unlink()
+    if purge:
+        for p in DF_CONF_FILES:
+            if p.exists():
+                print(f"removing config file: {p}")
+                try:
+                    p.unlink()
+                except Exception as e:
+                    print(f"failed to remove '{p}': {e}")
 
     if DF_DIR.exists():
         print(f"removing dotfiles directory: {DF_DIR}")
@@ -105,7 +112,11 @@ def cmd_run(playbook: str | None, tags: list[str]):
 
     ansible_flags = []
     if os.geteuid() != 0:
-        ansible_flags.append("-K")
+        pw = CONFIG.get("ansible_password")
+        if pw:
+            ansible_flags.append(["-e", f"ansible_become_pass='{pw}'"])
+        else:
+            ansible_flags.append("-K")
 
     if tags:
         print("Using tags:")
