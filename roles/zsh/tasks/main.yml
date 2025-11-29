@@ -11,3 +11,23 @@
   when: zsh_config.exists
   vars:
     task_prefix: "{{ os_id }} | "
+
+- name: "{{ task_prefix }}Set history options"
+  blockinfile:
+    path: "{{ zsh_config.path }}"
+    block: |
+      HISTSIZE=10000
+      SAVEHIST=10000
+      setopt hist_expire_dups_first
+      setopt hist_ignore_dups
+      setopt hist_ignore_space
+      setopt hist_verify
+      setopt share_history
+      setopt appendhistory
+      setopt inc_append_history
+      setopt share_history
+    append_newline: true
+    prepend_newline: true
+    marker: "# {mark} dotfile:hist"
+    marker_begin: '>>>'
+    marker_end: '<<<'
