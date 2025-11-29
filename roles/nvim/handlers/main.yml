@@ -1,3 +1,3 @@
 - name: Install neovim plugins
   shell: |
-    /opt/nvim/bin/nvim --headless '+Lazy! sync' '+Lazy! load mason-tool-installer.nvim' '+MasonToolsInstallSync' +qa
+    nvim --headless '+Lazy! sync' '+Lazy! load mason-tool-installer.nvim' '+MasonToolsInstallSync' +qa
