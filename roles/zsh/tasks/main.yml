@@ -12,7 +12,7 @@
   vars:
     task_prefix: "{{ os_id }} | "
 
-- name: "{{ task_prefix }}Set history options"
+- name: "Set history options"
   blockinfile:
     path: "{{ zsh_config.path }}"
     block: |
@@ -31,3 +31,4 @@
     marker: "# {mark} dotfile:hist"
     marker_begin: '>>>'
     marker_end: '<<<'
+  when: zsh_config.exists
