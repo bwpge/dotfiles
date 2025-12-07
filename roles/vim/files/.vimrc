@@ -319,7 +319,7 @@ call s:hi("StatusModeReplace", "NONE", s:mantle, s:sky, "bold", "bold")
 call s:hi("StatusModeCommand", "NONE", s:mantle, s:peach, "bold", "bold")
 call s:hi("StatusModeTerminal", "NONE", s:mantle, s:red, "bold", "bold")
 call s:hi("StatusModeOther", "NONE", s:mantle, s:red, "bold", "bold")
-call s:hi("StatusPos", "NONE", s:overlay0, s:mantle, "NONE", "NONE")
+call s:hi("StatusDim", "NONE", s:overlay0, s:mantle, "NONE", "NONE")
 call s:hi("StatusFileChanged", "NONE", s:peach, s:mantle, "bold", "bold")
 hi link StatusFile StatusLine
 hi link StatusPos StatusLine
@@ -350,8 +350,24 @@ function! StatusModeHL()
                             \ 'StatusModeOther'
 endfunction
 
+function! FileFormatText()
+    let l:ff = &fileformat
+    return l:ff ==# 'unix' ? 'LF'   :
+         \ l:ff ==# 'dos'  ? 'CRLF' :
+         \ l:ff ==# 'mac'  ? 'CR'   :
+         \ ''
+endfunction
+
+function! FileFormatHL()
+    return &fileformat ==# 'unix' ? '%#StatusDim#' : '%#Error#'
+endfunction
+
+function! EncodingHL()
+    return &encoding ==# 'utf-8' ? '%#StatusDim#' : '%#Error#'
+endfunction
+
 function! StatusFileHL()
   return &modified ? '%#StatusFileChanged#' : '%#StatusFile#'
 endfunction
 
-set statusline=%{%'%#'.StatusModeHL().'#'%}\ %{StatusModeText()}\ %{%StatusFileHL()%}\ %f%#StatusLine#%=%#StatusPos#\ %l:%c\ %#
+set statusline=%{%'%#'.StatusModeHL().'#'%}\ %{StatusModeText()}\ %{%StatusFileHL()%}\ %f%#StatusLine#%=%{%FileFormatHL()%}%{FileFormatText()}%#StatusDim#\ \|\ %{%EncodingHL()%}%{toupper(&encoding)}%#StatusDim#\ \|\ %l:%c\ %#
