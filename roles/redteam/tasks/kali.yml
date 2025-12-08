@@ -34,6 +34,9 @@
               tmux selectp -t "$name:1.1" && \
               tmux attach-session -t "$name"
       }
+
+      alias listen='nc -lvnp'
+      alias serve='python3 -m http.server'
     append_newline: true
     prepend_newline: true
     marker: "# {mark} dotfile:redteam"
