@@ -1,8 +1,7 @@
-- name: "{{ task_prefix}}Update system"
+- name: "{{ task_prefix}}Update cache"
   become: true
   apt:
     update_cache: true
-    upgrade: safe
 
 - name: "{{ task_prefix}}Install utilities"
   become: true

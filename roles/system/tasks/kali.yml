@@ -1,3 +1,8 @@
+- name: "{{ task_prefix}}Check for desktop environment"
+  shell: apt list --installed 'kali-desktop*'
+  register: _desktop
+  changed_when: false
+
 - name: "{{ task_prefix}}Install build tools"
   become: true
   apt:
@@ -18,6 +23,15 @@
       - feroxbuster
       - kali-wallpapers-all
       - seclists
+
+- name: "{{ task_prefix }}Install desktop packages"
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - xsel
+      - flameshot
+  when: _desktop.stdout != ""
 
 - name: "{{ task_prefix}}Check for ssh key"
   stat:

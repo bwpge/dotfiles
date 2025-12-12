@@ -1,218 +1,226 @@
-- name: "{{ task_prefix }}Query monitor names"
-  shell: |
-    xrandr --listmonitors | grep '^\s*[0-9]' | awk '{print $4}'
-  register: _mon
-  changed_when: false
+- name: "{{ task_prefix}}Check if xfce is installed"
+  shell: apt list --installed kali-desktop-xfce
+  register: _xfce
 
-- name: "{{ task_prefix }}Set workspace background mode"
-  community.general.xfconf:
-    channel: xfce4-desktop
-    property: /backdrop/single-workspace-mode
-    value: 'true'
-    value_type: bool
+- name: "{{ task_prefix }}Run xfce tasks"
+  when: _xfce.stdout != ""
+  block:
 
-- name: "{{ task_prefix }}Set login background image"
-  file:
-    path: /usr/share/desktop-base/kali-theme/login/background
-    src: /usr/share/backgrounds/kali-16x9/kali-neon.png
-    state: link
-  become: true
+  - name: "{{ task_prefix }}Query monitor names"
+    shell: |
+      xrandr --listmonitors | grep '^\s*[0-9]' | awk '{print $4}'
+    register: _mon
+    changed_when: false
 
-- name: "{{ task_prefix }}Set monitor background image"
-  community.general.xfconf:
-    channel: xfce4-desktop
-    property: "/backdrop/screen0/monitor{{ mon_item }}/workspace0/last-image"
-    value: /usr/share/backgrounds/kali-16x9/kali-neon.png
-    value_type: string
-  loop: "{{ _mon.stdout_lines }}"
-  loop_control:
-    loop_var: mon_item
+  - name: "{{ task_prefix }}Set workspace background mode"
+    community.general.xfconf:
+      channel: xfce4-desktop
+      property: /backdrop/single-workspace-mode
+      value: 'true'
+      value_type: bool
 
-- name: "{{ task_prefix }}Set panel border"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /panels/panel-1/border-width
-    value: 1
-    value_type: int
+  - name: "{{ task_prefix }}Set login background image"
+    file:
+      path: /usr/share/desktop-base/kali-theme/login/background
+      src: /usr/share/backgrounds/kali-16x9/kali-neon.png
+      state: link
+    become: true
 
-- name: "{{ task_prefix }}Disable mousewheel rollup"
-  community.general.xfconf:
-    channel: xfwm4
-    property: /general/mousewheel_rollup
-    value: 'false'
-    value_type: bool
+  - name: "{{ task_prefix }}Set monitor background image"
+    community.general.xfconf:
+      channel: xfce4-desktop
+      property: "/backdrop/screen0/monitor{{ mon_item }}/workspace0/last-image"
+      value: /usr/share/backgrounds/kali-16x9/kali-neon.png
+      value_type: string
+    loop: "{{ _mon.stdout_lines }}"
+    loop_control:
+      loop_var: mon_item
 
-- name: "{{ task_prefix }}Set key repeat rate"
-  community.general.xfconf:
-    channel: keyboards
-    property: /Default/KeyRepeat/Rate
-    value: 32
-    value_type: int
+  - name: "{{ task_prefix }}Set panel border"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /panels/panel-1/border-width
+      value: 1
+      value_type: int
 
-- name: "{{ task_prefix }}Show hidden files in thunar"
-  community.general.xfconf:
-    channel: thunar
-    property: /last-show-hidden
-    value: 'true'
-    value_type: bool
+  - name: "{{ task_prefix }}Disable mousewheel rollup"
+    community.general.xfconf:
+      channel: xfwm4
+      property: /general/mousewheel_rollup
+      value: 'false'
+      value_type: bool
 
-- name: "{{ task_prefix }}Set screensaver timeout"
-  community.general.xfconf:
-    channel: xfce4-screensaver
-    property: /saver/idle-activation/delay
-    value: 10
-    value_type: int
+  - name: "{{ task_prefix }}Set key repeat rate"
+    community.general.xfconf:
+      channel: keyboards
+      property: /Default/KeyRepeat/Rate
+      value: 32
+      value_type: int
 
-- name: "{{ task_prefix }}Set screensaver mode"
-  community.general.xfconf:
-    channel: xfce4-screensaver
-    property: /saver/mode
-    value: 0
-    value_type: int
+  - name: "{{ task_prefix }}Show hidden files in thunar"
+    community.general.xfconf:
+      channel: thunar
+      property: /last-show-hidden
+      value: 'true'
+      value_type: bool
 
-- name: "{{ task_prefix }}Disable screensaver"
-  community.general.xfconf:
-    channel: xfce4-screensaver
-    property: /saver/enabled
-    value: 'false'
-    value_type: bool
+  - name: "{{ task_prefix }}Set screensaver timeout"
+    community.general.xfconf:
+      channel: xfce4-screensaver
+      property: /saver/idle-activation/delay
+      value: 10
+      value_type: int
 
-- name: "{{ task_prefix }}Set default terminal emulator"
-  lineinfile:
-    path: "{{ ansible_env.HOME }}/.config/xfce4/helpers.rc"
-    line: 'TerminalEmulator=kitty'
-    create: true
-    mode: 0644
+  - name: "{{ task_prefix }}Set screensaver mode"
+    community.general.xfconf:
+      channel: xfce4-screensaver
+      property: /saver/mode
+      value: 0
+      value_type: int
 
-- name: "{{ task_prefix }}Quit xfce4-panel"
-  command: xfce4-panel -q
-  changed_when: false
+  - name: "{{ task_prefix }}Disable screensaver"
+    community.general.xfconf:
+      channel: xfce4-screensaver
+      property: /saver/enabled
+      value: 'false'
+      value_type: bool
 
-- name: "{{ task_prefix }}Set interface font"
-  community.general.xfconf:
-    channel: xfwm4
-    property: /general/title_font
-    value: 'Inter Display Bold 9'
-    value_type: string
+  - name: "{{ task_prefix }}Set default terminal emulator"
+    lineinfile:
+      path: "{{ ansible_env.HOME }}/.config/xfce4/helpers.rc"
+      line: 'TerminalEmulator=kitty'
+      create: true
+      mode: 0644
 
-- name: "{{ task_prefix }}Set GTK font"
-  community.general.xfconf:
-    channel: xsettings
-    property: /Gtk/FontName
-    value: 'Inter Display 11'
-    value_type: string
+  - name: "{{ task_prefix }}Quit xfce4-panel"
+    command: xfce4-panel -q
+    changed_when: false
 
-- name: "{{ task_prefix }}Set GTK monospace font"
-  community.general.xfconf:
-    channel: xsettings
-    property: /Gtk/MonospaceFontName
-    value: 'JetBrainsMono Nerd Font 11'
-    value_type: string
+  - name: "{{ task_prefix }}Set interface font"
+    community.general.xfconf:
+      channel: xfwm4
+      property: /general/title_font
+      value: 'Inter Display Bold 9'
+      value_type: string
 
-- name: "{{ task_prefix }}Set clock date font"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /plugins/plugin-19/digital-date-font
-    value: 'Inter Display 8'
-    value_type: string
+  - name: "{{ task_prefix }}Set GTK font"
+    community.general.xfconf:
+      channel: xsettings
+      property: /Gtk/FontName
+      value: 'Inter Display 11'
+      value_type: string
 
-- name: "{{ task_prefix }}Set clock date format"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /plugins/plugin-19/digital-date-format
-    value: '%d %b %Y'
-    value_type: string
+  - name: "{{ task_prefix }}Set GTK monospace font"
+    community.general.xfconf:
+      channel: xsettings
+      property: /Gtk/MonospaceFontName
+      value: 'JetBrainsMono Nerd Font 11'
+      value_type: string
 
-- name: "{{ task_prefix }}Set clock layout"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /plugins/plugin-19/digital-layout
-    value: 0
-    value_type: int
+  - name: "{{ task_prefix }}Set clock date font"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /plugins/plugin-19/digital-date-font
+      value: 'Inter Display 8'
+      value_type: string
 
-- name: "{{ task_prefix }}Set clock time font"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /plugins/plugin-19/digital-time-font
-    value: 'Inter Display 10'
-    value_type: string
+  - name: "{{ task_prefix }}Set clock date format"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /plugins/plugin-19/digital-date-format
+      value: '%d %b %Y'
+      value_type: string
 
-- name: "{{ task_prefix }}Set clock time format"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /plugins/plugin-19/digital-time-format
-    value: '%I:%M %p'
-    value_type: string
+  - name: "{{ task_prefix }}Set clock layout"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /plugins/plugin-19/digital-layout
+      value: 0
+      value_type: int
 
-- name: "{{ task_prefix }}Set clock mode"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /plugins/plugin-19/mode
-    value: 2
-    value_type: uint
+  - name: "{{ task_prefix }}Set clock time font"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /plugins/plugin-19/digital-time-font
+      value: 'Inter Display 10'
+      value_type: string
 
-- name: "{{ task_prefix }}Set VPN monitor command"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /plugins/plugin-15/command
-    value: '/usr/share/kali-themes/xfce4-panel-genmon-vpnip.sh'
-    value_type: string
+  - name: "{{ task_prefix }}Set clock time format"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /plugins/plugin-19/digital-time-format
+      value: '%I:%M %p'
+      value_type: string
 
-- name: "{{ task_prefix }}Set VPN monitor update period"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /plugins/plugin-15/update-period
-    value: '30000'
-    value_type: int
+  - name: "{{ task_prefix }}Set clock mode"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /plugins/plugin-19/mode
+      value: 2
+      value_type: uint
 
-- name: "{{ task_prefix }}Set VPN monitor text"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /plugins/plugin-15/text
-    value: ''
-    value_type: string
+  - name: "{{ task_prefix }}Set VPN monitor command"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /plugins/plugin-15/command
+      value: '/usr/share/kali-themes/xfce4-panel-genmon-vpnip.sh'
+      value_type: string
 
-- name: "{{ task_prefix }}Disable VPN monitor label"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /plugins/plugin-15/use-label
-    value: 'false'
-    value_type: bool
+  - name: "{{ task_prefix }}Set VPN monitor update period"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /plugins/plugin-15/update-period
+      value: '30000'
+      value_type: int
 
-- name: "{{ task_prefix }}Enable VPN monitor single-row"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /plugins/plugin-15/enable-single-row
-    value: 'true'
-    value_type: bool
+  - name: "{{ task_prefix }}Set VPN monitor text"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /plugins/plugin-15/text
+      value: ''
+      value_type: string
 
-- name: "{{ task_prefix }}Set VPN monitor font"
-  community.general.xfconf:
-    channel: xfce4-panel
-    property: /plugins/plugin-15/font
-    value: 'Inter Display 10'
-    value_type: string
+  - name: "{{ task_prefix }}Disable VPN monitor label"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /plugins/plugin-15/use-label
+      value: 'false'
+      value_type: bool
 
-- name: "{{ task_prefix }}Ensure qt5 config directory exists"
-  file:
-    path: "{{ ansible_env.HOME }}/.config/qt5ct"
-    state: directory
+  - name: "{{ task_prefix }}Enable VPN monitor single-row"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /plugins/plugin-15/enable-single-row
+      value: 'true'
+      value_type: bool
 
-- name: "{{ task_prefix }}Ensure qt6 config directory exists"
-  file:
-    path: "{{ ansible_env.HOME }}/.config/qt6ct"
-    state: directory
+  - name: "{{ task_prefix }}Set VPN monitor font"
+    community.general.xfconf:
+      channel: xfce4-panel
+      property: /plugins/plugin-15/font
+      value: 'Inter Display 10'
+      value_type: string
 
-- name: "{{ task_prefix }}Update qt5 config"
-  copy:
-    src: "{{ os_id }}-qt5ct.conf"
-    dest: "{{ ansible_env.HOME }}/.config/qt5ct/qt5ct.conf"
+  - name: "{{ task_prefix }}Ensure qt5 config directory exists"
+    file:
+      path: "{{ ansible_env.HOME }}/.config/qt5ct"
+      state: directory
 
-- name: "{{ task_prefix }}Update qt6 config"
-  copy:
-    src: "{{ os_id }}-qt6ct.conf"
-    dest: "{{ ansible_env.HOME }}/.config/qt6ct/qt6ct.conf"
+  - name: "{{ task_prefix }}Ensure qt6 config directory exists"
+    file:
+      path: "{{ ansible_env.HOME }}/.config/qt6ct"
+      state: directory
 
-- name: "{{ task_prefix }}Start xfce4-panel"
-  shell: 'xfce4-panel &'
-  changed_when: false
+  - name: "{{ task_prefix }}Update qt5 config"
+    copy:
+      src: "{{ os_id }}-qt5ct.conf"
+      dest: "{{ ansible_env.HOME }}/.config/qt5ct/qt5ct.conf"
+
+  - name: "{{ task_prefix }}Update qt6 config"
+    copy:
+      src: "{{ os_id }}-qt6ct.conf"
+      dest: "{{ ansible_env.HOME }}/.config/qt6ct/qt6ct.conf"
+
+  - name: "{{ task_prefix }}Start xfce4-panel"
+    shell: 'xfce4-panel &'
+    changed_when: false
