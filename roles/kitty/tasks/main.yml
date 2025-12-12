@@ -1,15 +1,15 @@
-- name: "{{ task_prefix }}Ensure config directory exists"
+- name: "Ensure config directory exists"
   file:
     path: "{{ ansible_env.HOME }}/.config/kitty"
     state: directory
 
-- name: "{{ task_prefix }}Install config"
+- name: "Install config"
   copy:
     src: kitty.conf
     dest: "{{ ansible_env.HOME }}/.config/kitty/kitty.conf"
     mode: 0644
 
-- name: "{{ task_prefix }}Install right-click kitten"
+- name: "Install right-click kitten"
   copy:
     src: right_click_copy_paste.py
     dest: "{{ ansible_env.HOME }}/.config/kitty/right_click_copy_paste.py"
