@@ -83,3 +83,7 @@
       tags:
         - sublime
         - never
+    - role: ghostty
+      tags:
+        - ghostty
+        - never

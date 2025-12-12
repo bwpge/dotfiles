@@ -1,0 +1,61 @@
+# font
+font-family = Iosevka Nerd Font
+font-size = 12
+font-style = Medium
+adjust-cell-height = 20%
+adjust-cell-width = 0
+
+# settings
+shell-integration-features = no-title, no-cursor, ssh-env
+cursor-style = block
+right-click-action = copy-or-paste
+app-notifications = no-clipboard-copy
+window-save-state = default
+window-padding-x = 8
+window-padding-y = 8
+mouse-scroll-multiplier = 3
+
+# keybinds
+keybind = ctrl+shift+\=new_split:right
+keybind = ctrl+shift+-=new_split:down
+keybind = ctrl+shift+w=close_surface
+
+# theme
+foreground = #ccd5e5
+background = #191d23
+selection-foreground = #191d23
+selection-background = #eeab41
+cursor-color = #5dcd9a
+cursor-text = #191d23
+
+# black
+palette = 0=#6a7096
+palette = 8=#6a7096
+
+# red
+palette = 1=#f73e53
+palette = 9=#f73e53
+
+# green
+palette = 2=#5dcd9a
+palette = 10=#5dcd9a
+
+# yellow
+palette = 3=#e5c07b
+palette = 11=#e5c07b
+
+# blue
+palette = 4=#748bdf
+palette = 12=#748bdf
+
+# magenta
+palette = 5=#b17af5
+palette = 13=#b17af5
+
+# cyan
+palette = 6=#6dbee3
+palette = 14=#6dbee3
+
+# white
+palette = 7=#d6ddea
+palette = 15=#d6ddea
