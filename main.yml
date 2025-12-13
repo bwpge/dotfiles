@@ -59,6 +59,10 @@
       tags:
         - wayland
         - common
+    - role: x11
+      tags:
+        - x11
+        - common
     - role: xfce
       tags:
         - xfce

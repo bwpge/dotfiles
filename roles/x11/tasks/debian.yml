@@ -1,0 +1,9 @@
+- name: "{{ task_prefix }}Install utility packages"
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - xclip
+      - xsel
+      - flameshot
+  when: de_x11
