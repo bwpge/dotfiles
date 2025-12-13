@@ -1,0 +1,47 @@
+---
+- name: Detect session type
+  shell: |
+    echo $XDG_SESSION_TYPE
+  register: _xdgst
+  changed_when: false
+
+- name: Detect xfce
+  shell: |
+    command -v xfce4-session || true
+  register: _xfce
+  changed_when: false
+
+- name: Detect i3
+  shell: |
+    command -v i3 || true
+  register: _i3
+  changed_when: false
+
+- name: Detect gnome
+  shell: |
+    command -v gnome-shell || true
+  register: _gnome
+  changed_when: false
+
+- name: Detect hyprland
+  shell: |
+    command -v Hyprland || true
+  register: _hyprland
+  changed_when: false
+
+- name: Detect KDE
+  shell: |
+    command -v plasmashell || true
+  register: _kde
+  changed_when: false
+
+- name: Set DE facts
+  set_fact:
+    de_xfce: "{{ _xfce.stdout != '' }}"
+    de_i3: "{{ _i3.stdout != '' }}"
+    de_hyprland: "{{ _hyprland.stdout != '' }}"
+    de_gnome: "{{ _gnome.stdout != '' }}"
+    de_kde: "{{ _kde.stdout != '' }}"
+    de_x11: "{{ _xdgst.stdout == 'x11' }}"
+    de_wayland: "{{ _xdgst.stdout == 'wayland' }}"
+  changed_when: false

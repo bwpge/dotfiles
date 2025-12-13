@@ -3,10 +3,11 @@
   with_fileglob: "{{ os_family_lower }}.yml"
   vars:
     task_prefix: "{{ os_family_lower }} | "
+  when: de_xfce
 
 - name: Import OS ID tasks
   include_tasks: "{{ item }}"
   with_fileglob: "{{ os_id }}.yml"
   vars:
     task_prefix: "{{ os_id }} | "
-  when: os_family_lower != os_id
+  when: de_xfce and os_family_lower != os_id
