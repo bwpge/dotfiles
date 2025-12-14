@@ -1,9 +1,3 @@
-- name: Check for neovim config
-  stat:
-    path: "{{ ansible_env.HOME }}/.config/nvim"
-  register: nvimconf
-  changed_when: false
-
 - name: Clone and update neovim config
   git:
     repo: 'https://github.com/bwpge/nvim-config.git'
@@ -11,13 +5,7 @@
     version: main
     update: true
     force: true
-
-- name: Install plugins
-  assert:
-    that: true
-    quiet: true
   notify: Install neovim plugins
-  when: not nvimconf.stat.exists
 
 - name: Import OS family tasks
   include_tasks: "{{ item }}"

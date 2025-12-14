@@ -1,7 +1,19 @@
-- name: "{{ task_prefix }}Check for current installation"
+- name: "{{ task_prefix }}Query latest version"
+  uri:
+    url: https://api.github.com/repos/neovim/neovim/releases/latest
+  register: nvim_info
+  changed_when: false
+
+- name: "{{ task_prefix }}Register latest version"
+  set_fact:
+    nvim_latest: "nvim-{{ nvim_info.json.tag_name }}"
+  changed_when: false
+
+- name: "{{ task_prefix }}Check current installation"
   stat:
-    path: /opt/nvim
+    path: "/opt/{{ nvim_latest }}"
   register: _nvim
+  changed_when: false
 
 - name: "{{ task_prefix }}Install neovim"
   block:
@@ -22,10 +34,17 @@
       become: true
 
     - name: "{{ task_prefix }}Rename directory"
-      command: "mv /opt/{{ nvim_triple }} /opt/nvim"
+      command: "mv /opt/{{ nvim_triple }} /opt/{{ nvim_latest }}"
       become: true
 
-    - name: "{{ task_prefix }}Create symbolic link"
+    - name: "{{ task_prefix }}Link installed version"
+      file:
+        src: "/opt/{{ nvim_latest }}"
+        dest: "/opt/nvim"
+        state: link
+      become: true
+
+    - name: "{{ task_prefix }}Link binary"
       file:
         src: /opt/nvim/bin/nvim
         dest: "/usr/local/bin/nvim"
