@@ -4,6 +4,13 @@
   register: _mon
   changed_when: false
 
+- name: "{{ task_prefix }}Set flameshot keybind"
+  community.general.xfconf:
+    channel: xfce4-keyboard-shortcuts
+    property: /commands/custom/<Shift><Super>s
+    value: flameshot gui
+    value_type: string
+
 - name: "{{ task_prefix }}Set workspace background mode"
   community.general.xfconf:
     channel: xfce4-desktop
