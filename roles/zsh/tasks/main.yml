@@ -12,6 +12,37 @@
   vars:
     task_prefix: "{{ os_id }} | "
 
+- name: "Configure aliases"
+  blockinfile:
+    path: "{{ zsh_config.path }}"
+    block: |
+      alias l='ls -lah'
+      alias la='ls -lAh'
+      alias less='less -R'
+      alias grep='grep --color=auto'
+      alias fgrep='fgrep --color=auto'
+      alias egrep='egrep --color=auto'
+      alias gs='git status'
+      alias ga='git add'
+      alias gc='git commit'
+      alias gf='git fetch'
+      alias gp='git push'
+      alias gpl='git pull'
+      alias gd='git diff'
+      alias gds='git diff --staged'
+      alias gl='git -P log --all --graph --pretty=tformat:'\''%C(auto)%h%Creset%C(auto)%d %C(auto)%s %C(blue)(%cr)%Creset'\'
+
+      function mkvenv {
+          name="${1:-venv}"
+          python3 -m venv "$name" && source "$name/bin/activate"
+      }
+    append_newline: true
+    prepend_newline: true
+    marker: "# {mark} dotfile:alias-zsh"
+    marker_begin: '>>>'
+    marker_end: '<<<'
+  when: zsh_config.exists
+
 - name: "Set history options"
   blockinfile:
     path: "{{ zsh_config.path }}"
