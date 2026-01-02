@@ -23,8 +23,14 @@
     block: |
       function tvpn {
           vpnfile="$1"
-          [ -z "$vpnfile" ] && echo "error: vpn connection file required" && exit 1
-          tmux new -s vpn -A "sudo openvpn $1"
+          if [ -z "$vpnfile" ] && [ -d /mnt/shared ]; then
+              vpnfile="$(find /mnt/shared -type f -name '*.ovpn' | fzf --height='~100%')"
+          fi
+          if [ -f "$vpnfile" ]; then
+              tmux new -s vpn -A "sudo openvpn $vpnfile"
+          else
+              echo "error: a VPN file is required" >&2
+          fi
       }
 
       alias tclear='cur=$(tmux display -p "#I"); for w in $(tmux lsw -F "#I"); do tmux selectw -t $w; done; tmux selectw -t $cur'
