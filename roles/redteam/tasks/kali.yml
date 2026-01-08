@@ -35,6 +35,14 @@
               tmux attach-session -t "$name"
       }
 
+      function urlencode {
+          echo -n "$1" | python3 -c 'import urllib.parse;import sys;print(urllib.parse.quote_plus(sys.stdin.read(),safe="'"$2"'"))'
+      }
+
+      function urldecode {
+          echo -n "$1" | python3 -c 'import urllib.parse;import sys;print(urllib.parse.unquote_plus(sys.stdin.read()))'
+      }
+
       alias listen='nc -lvnp'
       alias serve='python3 -m http.server'
     append_newline: true
