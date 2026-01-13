@@ -54,3 +54,31 @@
   loop: "{{ shell_configs }}"
   loop_control:
     loop_var: shell_item
+
+- name: "{{task_prefix}}kerbrute | Query latest version"
+  uri:
+    url: https://api.github.com/repos/ropnop/kerbrute/releases/latest
+  register: kerbrute_info
+  changed_when: false
+
+- name: "{{ task_prefix }}kerbrute | Download and install"
+  get_url:
+    url: "https://github.com/ropnop/kerbrute/releases/download/{{ kerbrute_info.json.tag_name }}/kerbrute_linux_amd64"
+    dest: "/usr/local/bin/kerbrute"
+    mode: 0755
+  become: true
+
+- name: "{{task_prefix}}bloodhound-cli | Query latest version"
+  uri:
+    url: https://api.github.com/repos/SpecterOps/bloodhound-cli/releases/latest
+  register: bhcli_info
+  changed_when: false
+
+- name: "{{ task_prefix }}bloodhound-cli | Download and install"
+  unarchive:
+    remote_src: true
+    src: "https://github.com/SpecterOps/bloodhound-cli/releases/download/{{ bhcli_info.json.tag_name }}/bloodhound-cli-linux-{{ ansible_machine | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }}.tar.gz"
+    dest: "/usr/local/bin"
+    creates: "/usr/bin/local/bloodhound-cli"
+    mode: 0755
+  become: true
