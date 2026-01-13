@@ -7,6 +7,7 @@
       - cmake
       - gettext
       - git
+      - mingw-w64
       - ninja-build
 
 - name: "{{ task_prefix}}Install extra packages"
@@ -15,9 +16,22 @@
     state: latest
     pkg:
       - autorecon
+      - awscli
+      - docker.io
+      - docker-compose
       - feroxbuster
       - kali-wallpapers-all
       - seclists
+
+- name: "{{ task_prefix}}Install dotnet packages"
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - dotnet-runtime-deps-6.0
+      - dotnet-sdk-6.0
+      - mono-devel
+      - mono-runtime
 
 - name: "{{ task_prefix}}Check for ssh key"
   stat:
