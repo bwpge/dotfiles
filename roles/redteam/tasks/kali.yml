@@ -82,3 +82,12 @@
     creates: "/usr/bin/local/bloodhound-cli"
     mode: 0755
   become: true
+
+- name: "{{task_prefix}}Clone and update SharpCollection"
+  git:
+    repo: 'https://github.com/Flangvik/SharpCollection.git'
+    dest: "/opt/SharpCollection"
+    version: master
+    update: true
+    force: true
+  become: true
