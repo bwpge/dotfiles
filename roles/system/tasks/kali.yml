@@ -17,10 +17,11 @@
     pkg:
       - autorecon
       - awscli
-      - docker.io
       - docker-compose
+      - docker.io
       - feroxbuster
       - kali-wallpapers-all
+      - python3-wsgidav
       - seclists
 
 - name: "{{ task_prefix}}Install dotnet packages"
