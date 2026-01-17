@@ -91,3 +91,37 @@
     update: true
     force: true
   become: true
+
+- name: "{{task_prefix}}chisel | Query latest version"
+  uri:
+    url: https://api.github.com/repos/jpillora/chisel/releases/latest
+  register: chisel_info
+  changed_when: false
+
+- name: Check for chisel binary
+  stat:
+    path: /usr/local/bin/chisel
+  register: chiselbin
+  changed_when: false
+
+- name: "{{ task_prefix }}chisel | Download and install linux binary"
+  shell: >
+    curl -sfL https://github.com/jpillora/chisel/releases/download/{{ chisel_info.json.tag_name }}/chisel_{{ chisel_info.json.tag_name[1:] }}_linux_{{ ansible_machine | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }}.gz |
+    gunzip > /usr/local/bin/chisel &&
+    chmod 0755 /usr/local/bin/chisel
+  become: true
+  when: not chiselbin.stat.exists
+
+- name: "{{ task_prefix }}chisel | Create opt directory"
+  file:
+    path: /opt/chisel
+    state: directory
+  become: true
+
+- name: "{{ task_prefix }}chisel | Download windows binary"
+  unarchive:
+    remote_src: true
+    src: "https://github.com/jpillora/chisel/releases/download/{{ chisel_info.json.tag_name }}/chisel_{{ chisel_info.json.tag_name[1:] }}_windows_amd64.zip"
+    dest: "/opt/chisel"
+    creates: "/opt/chisel/chisel.exe"
+  become: true
