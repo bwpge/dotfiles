@@ -17,11 +17,14 @@
     pkg:
       - autorecon
       - awscli
+      - bloodhound-ce-python
       - docker-compose
       - docker.io
       - feroxbuster
       - kali-wallpapers-all
+      - ncat
       - python3-wsgidav
+      - wordlists
       - seclists
 
 - name: "{{ task_prefix}}Install dotnet packages"
@@ -46,8 +49,14 @@
     executable: /bin/sh
   when: not sshkey_check.stat.exists
 
+- name: "{{ task_prefix}}Check for rockyou"
+  stat:
+    path: /usr/share/wordlists/rockyou.txt.gz
+  register: rockyou
+
 - name: "{{ task_prefix}}Decompress rockyou.txt"
   command: gunzip -k /usr/share/wordlists/rockyou.txt.gz
   args:
     creates: /usr/share/wordlists/rockyou.txt
   become: true
+  when: rockyou.stat.exists
