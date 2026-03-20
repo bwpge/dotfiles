@@ -7,7 +7,7 @@
 
 - name: "{{ task_prefix }}Set config file fact"
   set_fact:
-    qtermconf: "{{ ansible_env.HOME }}/.config/qterminal.org/qterminal.ini"
+    qtermconf: "{{ ansible_facts['env'].HOME }}/.config/qterminal.org/qterminal.ini"
 
 - name: "{{ task_prefix }}Read qterm config"
   shell: "cat {{ qtermconf }}"

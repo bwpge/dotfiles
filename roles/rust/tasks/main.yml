@@ -2,7 +2,7 @@
   shell: |
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   args:
-    creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
+    creates: "{{ ansible_facts['env'].HOME }}/.cargo/bin/rustup"
 
 - name: Add cargo env to shell config
   blockinfile:

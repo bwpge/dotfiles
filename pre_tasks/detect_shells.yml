@@ -1,13 +1,13 @@
 ---
 - name: Check for zsh config
   stat:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts['env'].HOME }}/.zshrc"
   register: _zshrc
   changed_when: false
 
 - name: Check for bash config
   stat:
-    path: "{{ ansible_env.HOME }}/.bashrc"
+    path: "{{ ansible_facts['env'].HOME }}/.bashrc"
   register: _bashrc
   changed_when: false
 

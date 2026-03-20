@@ -86,7 +86,7 @@
 
 - name: "{{ task_prefix }}Set default terminal emulator"
   lineinfile:
-    path: "{{ ansible_env.HOME }}/.config/xfce4/helpers.rc"
+    path: "{{ ansible_facts['env'].HOME }}/.config/xfce4/helpers.rc"
     line: 'TerminalEmulator=kitty'
     create: true
     mode: 0644
@@ -202,23 +202,23 @@
 
 - name: "{{ task_prefix }}Ensure qt5 config directory exists"
   file:
-    path: "{{ ansible_env.HOME }}/.config/qt5ct"
+    path: "{{ ansible_facts['env'].HOME }}/.config/qt5ct"
     state: directory
 
 - name: "{{ task_prefix }}Ensure qt6 config directory exists"
   file:
-    path: "{{ ansible_env.HOME }}/.config/qt6ct"
+    path: "{{ ansible_facts['env'].HOME }}/.config/qt6ct"
     state: directory
 
 - name: "{{ task_prefix }}Update qt5 config"
   copy:
     src: "{{ os_id }}-qt5ct.conf"
-    dest: "{{ ansible_env.HOME }}/.config/qt5ct/qt5ct.conf"
+    dest: "{{ ansible_facts['env'].HOME }}/.config/qt5ct/qt5ct.conf"
 
 - name: "{{ task_prefix }}Update qt6 config"
   copy:
     src: "{{ os_id }}-qt6ct.conf"
-    dest: "{{ ansible_env.HOME }}/.config/qt6ct/qt6ct.conf"
+    dest: "{{ ansible_facts['env'].HOME }}/.config/qt6ct/qt6ct.conf"
 
 - name: "{{ task_prefix }}Start xfce4-panel"
   shell: 'xfce4-panel &'

@@ -19,7 +19,7 @@
   block:
     - name: "{{ task_prefix }}Register triple"
       set_fact:
-        nvim_triple: "nvim-{{ ansible_system | lower }}-{{ ansible_machine }}"
+        nvim_triple: "nvim-{{ ansible_facts['system'] | lower }}-{{ ansible_facts['machine'] }}"
 
     - name: "{{ task_prefix }}Download and extract tarball"
       unarchive:

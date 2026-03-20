@@ -1,18 +1,18 @@
 - name: "Ensure config directory exists"
   file:
-    path: "{{ ansible_env.HOME }}/.config/kitty"
+    path: "{{ ansible_facts['env'].HOME }}/.config/kitty"
     state: directory
 
 - name: "Install config"
   copy:
     src: kitty.conf
-    dest: "{{ ansible_env.HOME }}/.config/kitty/kitty.conf"
+    dest: "{{ ansible_facts['env'].HOME }}/.config/kitty/kitty.conf"
     mode: 0644
 
 - name: "Install right-click kitten"
   copy:
     src: right_click_copy_paste.py
-    dest: "{{ ansible_env.HOME }}/.config/kitty/right_click_copy_paste.py"
+    dest: "{{ ansible_facts['env'].HOME }}/.config/kitty/right_click_copy_paste.py"
     mode: 0644
 
 - name: Import OS family tasks

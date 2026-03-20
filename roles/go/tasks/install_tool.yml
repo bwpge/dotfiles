@@ -1,6 +1,6 @@
 - name: "{{ gotool_item.name }} | Check if tool is installed"
   stat:
-    path: "{{ ansible_env.HOME }}/go/bin/{{ gotool_item.name }}"
+    path: "{{ ansible_facts['env'].HOME }}/go/bin/{{ gotool_item.name }}"
   register: gotool
   changed_when: false
 

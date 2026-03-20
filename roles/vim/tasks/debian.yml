@@ -8,7 +8,7 @@
 - name: "{{task_prefix}}Configure vim"
   copy:
     src: ".vimrc"
-    dest: "{{ ansible_env.HOME }}/.vimrc"
+    dest: "{{ ansible_facts['env'].HOME }}/.vimrc"
     mode: 0644
 
 - name: "{{task_prefix}}Configure vim for root"

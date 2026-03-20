@@ -18,7 +18,7 @@
 
     - name: "{{ task_prefix }}Register download target"
       set_fact:
-        go_tarball: "{{ go_latest }}.{{ ansible_system | lower }}-{{ ansible_machine | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }}.tar.gz"
+        go_tarball: "{{ go_latest }}.{{ ansible_facts['system'] | lower }}-{{ ansible_facts['machine'] | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }}.tar.gz"
 
     - name: "{{ task_prefix }}Download and extract tarball"
       unarchive:

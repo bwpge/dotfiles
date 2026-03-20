@@ -14,7 +14,7 @@
 - name: Set OS facts
   set_fact:
     os_id: "{{ _os_id.stdout | lower | default(None) }}"
-    os_family_lower: "{{ ansible_os_family | lower | default(None) }}"
+    os_family_lower: "{{ ansible_facts['os_family'] | lower | default(None) }}"
   changed_when: false
 
 - name: Ensure facts are valid

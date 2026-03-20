@@ -1,12 +1,12 @@
 - name: "Ensure config directory exists"
   file:
-    path: "{{ ansible_env.HOME }}/.config/ghostty"
+    path: "{{ ansible_facts['env'].HOME }}/.config/ghostty"
     state: directory
 
 - name: "Install config"
   copy:
     src: config
-    dest: "{{ ansible_env.HOME }}/.config/ghostty/config"
+    dest: "{{ ansible_facts['env'].HOME }}/.config/ghostty/config"
     mode: 0644
 
 - name: Import OS family tasks

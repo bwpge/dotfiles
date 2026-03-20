@@ -1,7 +1,7 @@
 - name: Clone and update neovim config
   git:
     repo: 'https://github.com/bwpge/nvim-config.git'
-    dest: "{{ ansible_env.HOME }}/.config/nvim"
+    dest: "{{ ansible_facts['env'].HOME }}/.config/nvim"
     version: main
     update: true
     force: true

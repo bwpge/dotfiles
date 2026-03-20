@@ -8,19 +8,19 @@
 
 - name: Ensure gpg directory exists
   file:
-    path: "{{ ansible_env.HOME }}/.gnupg"
+    path: "{{ ansible_facts['env'].HOME }}/.gnupg"
     state: directory
     mode: 0700
 
 - name: Check for gpg-agent config
   stat:
-    path: "{{ ansible_env.HOME }}/.gnupg/gpg-agent.conf"
+    path: "{{ ansible_facts['env'].HOME }}/.gnupg/gpg-agent.conf"
   register: gpgconf
   changed_when: false
 
 - name: Install gpg config
   copy:
     src: "gpg-agent.conf"
-    dest: "{{ ansible_env.HOME }}/.gnupg/gpg-agent.conf"
+    dest: "{{ ansible_facts['env'].HOME }}/.gnupg/gpg-agent.conf"
     mode: 0644
   when: not gpgconf.stat.exists

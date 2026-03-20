@@ -17,5 +17,5 @@
 - name: Create gitconfig from template
   template:
     src: gitconfig.j2
-    dest: "{{ ansible_env.HOME }}/.gitconfig"
+    dest: "{{ ansible_facts['env'].HOME }}/.gitconfig"
     mode: 0644

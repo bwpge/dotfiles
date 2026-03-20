@@ -11,18 +11,18 @@
 - name: "{{ task_prefix }}Create kitty link"
   file:
     src: /opt/kitty.app/bin/kitty
-    dest: "{{ ansible_env.HOME }}/.local/bin/kitty"
+    dest: "{{ ansible_facts['env'].HOME }}/.local/bin/kitty"
     state: link
 
 - name: "{{ task_prefix }}Create kitten link"
   file:
     src: /opt/kitty.app/bin/kitten
-    dest: "{{ ansible_env.HOME }}/.local/bin/kitten"
+    dest: "{{ ansible_facts['env'].HOME }}/.local/bin/kitten"
     state: link
 
 - name: "{{ task_prefix }}Check for local applications directory"
   stat:
-    path: "{{ ansible_env.HOME }}/.local/share/applications"
+    path: "{{ ansible_facts['env'].HOME }}/.local/share/applications"
   register: _appdir
 
 - name: "{{ task_prefix }}Install desktop file"

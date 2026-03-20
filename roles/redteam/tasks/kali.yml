@@ -77,7 +77,7 @@
 - name: "{{ task_prefix }}bloodhound-cli | Download and install"
   unarchive:
     remote_src: true
-    src: "https://github.com/SpecterOps/bloodhound-cli/releases/download/{{ bhcli_info.json.tag_name }}/bloodhound-cli-linux-{{ ansible_machine | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }}.tar.gz"
+    src: "https://github.com/SpecterOps/bloodhound-cli/releases/download/{{ bhcli_info.json.tag_name }}/bloodhound-cli-linux-{{ ansible_facts['machine'] | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }}.tar.gz"
     dest: "/usr/local/bin"
     creates: "/usr/bin/local/bloodhound-cli"
     mode: 0755
@@ -106,7 +106,7 @@
 
 - name: "{{ task_prefix }}chisel | Download and install linux binary"
   shell: >
-    curl -sfL https://github.com/jpillora/chisel/releases/download/{{ chisel_info.json.tag_name }}/chisel_{{ chisel_info.json.tag_name[1:] }}_linux_{{ ansible_machine | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }}.gz |
+    curl -sfL https://github.com/jpillora/chisel/releases/download/{{ chisel_info.json.tag_name }}/chisel_{{ chisel_info.json.tag_name[1:] }}_linux_{{ ansible_facts['machine'] | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }}.gz |
     gunzip > /usr/local/bin/chisel &&
     chmod 0755 /usr/local/bin/chisel
   become: true

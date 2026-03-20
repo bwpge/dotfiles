@@ -14,7 +14,7 @@
 - name: Install tmux config
   copy:
     src: ".tmux.conf"
-    dest: "{{ ansible_env.HOME }}/.tmux.conf"
+    dest: "{{ ansible_facts['env'].HOME }}/.tmux.conf"
     mode: 0644
 
 - name: "Add tmux shell block"

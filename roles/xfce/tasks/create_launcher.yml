@@ -1,5 +1,5 @@
 - name: "{{ task_prefix }}Check if launcher exists"
-  shell: "if grep -qr '{{ launcher_item.name }}' {{ ansible_env.HOME }}/.config/xfce4/panel; then echo 'true'; fi"
+  shell: "if grep -qr '{{ launcher_item.name }}' {{ ansible_facts['env'].HOME }}/.config/xfce4/panel; then echo 'true'; fi"
   register: _check
   changed_when: false
 
@@ -19,8 +19,8 @@
 
     - name: "{{ task_prefix }}Register panel directory"
       set_fact:
-        launcher_dir: "{{ ansible_env.HOME }}/.config/xfce4/panel/launcher-{{ panel_idx }}"
-        desktop_file: "{{ ansible_env.HOME }}/.config/xfce4/panel/launcher-{{ panel_idx }}/{{ now().strftime('%s') }}.desktop"
+        launcher_dir: "{{ ansible_facts['env'].HOME }}/.config/xfce4/panel/launcher-{{ panel_idx }}"
+        desktop_file: "{{ ansible_facts['env'].HOME }}/.config/xfce4/panel/launcher-{{ panel_idx }}/{{ now().strftime('%s') }}.desktop"
       changed_when: false
 
     - name: "{{ task_prefix }}Prepare xfconf array"
