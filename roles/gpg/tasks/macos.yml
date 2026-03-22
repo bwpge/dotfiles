@@ -1,0 +1,16 @@
+- name: "{{ task_prefix }}Install gnupg and pinentry-mac"
+  community.general.homebrew:
+    state: installed
+    pkg: gnupg,pinentry-mac
+
+- name: "{{ task_prefix }}Set pinentry path fact"
+  shell: which pinentry-mac
+  register: pinentry_mac
+  changed_when: false
+
+- name: "{{ task_prefix }}Set macOS pinentry program"
+  lineinfile:
+    path: "{{ ansible_facts['env'].HOME }}/.gnupg/gpg-agent.conf"
+    line: "pinentry-program {{ pinentry_mac.stdout }}"
+    create: yes
+  when: pinentry_mac.stdout != ''
