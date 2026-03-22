@@ -1,0 +1,12 @@
+- name: "{{ task_prefix }}Set font directory fact"
+  set_fact:
+    fontdir: "{{ ansible_facts['env'].HOME }}/Library/Fonts"
+  changed_when: false
+
+- name: "{{ task_prefix }}Install nerd fonts"
+  include_tasks: install_nerdfont_macos.yml
+  loop:
+    - JetBrainsMono
+    - Iosevka
+  loop_control:
+    loop_var: font_item
