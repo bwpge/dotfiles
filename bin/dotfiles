@@ -85,28 +85,30 @@ def cmd_update():
     )
 
 
-def cmd_list(playbook: str | None):
+def cmd_list(playbook: str | None, tags: list[str], skip_tags: list[str]):
     pbpath = get_playbook_path(playbook)
     if not pbpath.exists():
         bail(f"playbook '{pbpath}' does not exist")
 
-    print(f"Tags in {pbpath}:")
-    with open(pbpath) as f:
-        in_roles = False
-        seen = set()
-        for line in f:
-            if "roles:" in line:
-                in_roles = True
-            s = line.strip()
-            if in_roles and s.startswith("- ") and ":" not in s:
-                tag = s.lstrip("- ").strip()
-                if tag and tag not in ("never", "always"):
-                    seen.add(tag)
-        for tag in sorted(seen):
-            print(f"  - {tag}")
+    ansible_flags = []
+    if tags:
+        ansible_flags.extend(["-t", ",".join(tags)])
+    if skip_tags:
+        ansible_flags.extend(["--skip-tags", ",".join(skip_tags)])
+
+    cmd = [
+        "ansible-playbook",
+        pbpath,
+        "-i",
+        "localhost,",
+        "--list-tags",
+        "--list-tasks",
+    ]
+    cmd.extend(ansible_flags)
+    subprocess.run(cmd, check=True)
 
 
-def cmd_run(playbook: str | None, tags: list[str]):
+def cmd_run(playbook: str | None, tags: list[str], skip_tags: list[str]):
     pbpath = get_playbook_path(playbook)
     print(f"Executing playbook: {pbpath}")
 
@@ -122,6 +124,10 @@ def cmd_run(playbook: str | None, tags: list[str]):
         print("Using tags:")
         print("\n".join(f"  - {t}" for t in tags))
         ansible_flags.extend(["-t", ",".join(tags)])
+    if skip_tags:
+        print("Skipping tags:")
+        print("\n".join(f"  - {t}" for t in skip_tags))
+        ansible_flags.extend(["--skip-tags", ",".join(skip_tags)])
 
     cmd = [
         "ansible-playbook",
@@ -152,10 +158,32 @@ def main():
         "list", aliases=["ls"], help="list tags in a playbook"
     )
     p_list.add_argument("playbook", nargs="?", help="optional playbook name")
+    p_list.add_argument(
+        "-t",
+        "--tags",
+        nargs="*",
+        dest="ls_tags",
+        metavar="TAGS",
+        help="tags to include with ansible-playbook --tags",
+    )
+    p_list.add_argument(
+        "-x",
+        "--skip-tags",
+        nargs="*",
+        dest="ls_skip_tags",
+        metavar="SKIP_TAGS",
+        help="tags to skip with ansible-playbook --skip-tags",
+    )
     p_run = subparsers.add_parser("run", help="run a playbook")
     p_run.add_argument("-b", "--playbook", help="specify playbook to run")
     p_run.add_argument(
-        "tags", nargs="*", help="optional tags to pass to ansible with -t"
+        "tags", nargs="*", help="tags to include with ansible-playbook --tags"
+    )
+    p_run.add_argument(
+        "-x",
+        "--skip-tags",
+        nargs="*",
+        help="tags to skip with ansible-playbook --skip-tags",
     )
     subparsers.add_parser("help", help="show this help")
 
@@ -173,9 +201,9 @@ def main():
     elif args.command == "update":
         cmd_update()
     elif args.command in ("list", "ls"):
-        cmd_list(getattr(args, "playbook", None))
+        cmd_list(args.playbook, args.ls_tags, args.ls_skip_tags)
     elif args.command == "run":
-        cmd_run(args.playbook, args.tags)
+        cmd_run(args.playbook, args.tags, args.skip_tags)
     else:
         bail(f"unknown command '{args.command}'")
 
