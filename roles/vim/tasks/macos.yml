@@ -1,0 +1,5 @@
+- name: "{{task_prefix}}Configure vim"
+  copy:
+    src: ".vimrc"
+    dest: "{{ ansible_facts['env'].HOME }}/.vimrc"
+    mode: 0644
