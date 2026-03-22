@@ -63,12 +63,16 @@ macos_setup() {
 
 common_setup() {
     src="$dfdir/bin/dotfiles"
-    target="/usr/local/bin/dotfiles"
+    target_dir="/usr/local/bin"
+    target="$target_dir/dotfiles"
 
     if [ ! -f "$src" ]; then
         _err "error: could not determine path to dotfiles script" >&2
         exit 1
     fi
+
+    echo "ensure directory exists: $target_dir"
+    $__sudo mkdir -p $target_dir
 
     echo "creating link: $src -> $target"
     $__sudo ln -sf $src $target
