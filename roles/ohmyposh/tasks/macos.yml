@@ -7,6 +7,14 @@
   blockinfile:
     path: "{{ zsh_config.path }}"
     block: |
+      autoload -Uz add-zsh-hook
+      __newline_precmd() {
+          $funcstack[1]() {
+              echo
+          }
+      }
+      add-zsh-hook precmd __newline_precmd
+
       eval "$(oh-my-posh init zsh --config 'https://raw.githubusercontent.com/bwpge/zcmder-omp/main/zcmder.omp.json')"
     append_newline: true
     prepend_newline: true
