@@ -21,6 +21,9 @@
       tags:
         - grub
         - common
+    - role: fzf
+      tags:
+        fzf
     - role: fonts
       tags:
         - fonts
