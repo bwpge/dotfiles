@@ -8,9 +8,9 @@ import sys
 from pathlib import Path
 
 DF_DIR = Path(__file__).resolve().parent.parent
-DF_BIN_FILE = Path("/usr/local/bin/dotfiles")
+DF_BIN_FILE = DF_DIR.joinpath("bin/dotfiles")
 DF_CONF_FILES = [
-    Path(f"{DF_DIR}/dotfiles.conf"),
+    DF_DIR.joinpath("dotfiles.conf"),
     Path("/etc/dotfiles.conf"),
 ]
 
@@ -105,7 +105,7 @@ def cmd_list(playbook: str | None, tags: list[str], skip_tags: list[str]):
         "--list-tasks",
     ]
     cmd.extend(ansible_flags)
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, cwd=DF_DIR, check=True)
 
 
 def cmd_run(playbook: str | None, tags: list[str], skip_tags: list[str]):
@@ -138,7 +138,7 @@ def cmd_run(playbook: str | None, tags: list[str], skip_tags: list[str]):
         pbpath,
     ]
     cmd.extend(ansible_flags)
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, cwd=DF_DIR, check=True)
 
 
 def main():
