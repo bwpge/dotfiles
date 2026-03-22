@@ -10,3 +10,24 @@
     - Iosevka
   loop_control:
     loop_var: font_item
+
+- name: "{{ task_prefix }}Check if SF-Mono is installed"
+  stat:
+    path: "{{ fontdir }}/SF-Mono"
+  register: sfmono
+  changed_when: false
+
+- name: "{{ task_prefix }}Install SF-Mono from Terminal.app"
+  block:
+
+  - name: "{{ task_prefix }}Create SF-Mono directory"
+    file:
+      path: "{{ fontdir }}/SF-Mono"
+      state: directory
+
+  - name: "{{ task_prefix }}Copy Terminal.app fonts"
+    copy:
+      src: /System/Applications/Utilities/Terminal.app/Contents/Resources/Fonts/
+      dest: "{{ fontdir }}/SF-Mono/"
+
+  when: not sfmono.stat.exists
