@@ -1,0 +1,16 @@
+- name: "{{ task_prefix }}Install oh-my-posh"
+  community.general.homebrew:
+    state: latest
+    name: oh-my-posh
+
+- name: "{{ task_prefix }}Update prompt"
+  blockinfile:
+    path: "{{ zsh_config.path }}"
+    block: |
+      eval "$(oh-my-posh init zsh --config 'https://raw.githubusercontent.com/bwpge/zcmder-omp/main/zcmder.omp.json')"
+    append_newline: true
+    prepend_newline: true
+    marker: "# {mark} dotfile:omp"
+    marker_begin: '>>>'
+    marker_end: '<<<'
+  when: zsh_config.exists

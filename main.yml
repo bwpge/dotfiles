@@ -29,14 +29,6 @@
       tags:
         - git
         - dev
-    - role: go
-      tags:
-        - go
-        - dev
-    - role: rust
-      tags:
-        - rust
-        - dev
     - role: kitty
       tags:
         - kitty
@@ -90,4 +82,22 @@
     - role: ghostty
       tags:
         - ghostty
+        - never
+    - role: go
+      tags:
+        - go
+        - dev
+        - never
+    - role: rust
+      tags:
+        - rust
+        - dev
+        - never
+    - role: ohmyposh
+      tags:
+        - ohmyposh
+        - never
+    - role: lsd
+      tags:
+        - lsd
         - never
