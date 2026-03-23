@@ -47,6 +47,11 @@
 
   when: not _go.stat.exists
 
+- name: "{{ task_prefix }}Set go bin path fact"
+  set_fact:
+    gobin: "/opt/go/bin/go"
+  changed_when: false
+
 - name: "{{ task_prefix }}Install go tools"
   include_tasks: install_tool.yml
   loop:

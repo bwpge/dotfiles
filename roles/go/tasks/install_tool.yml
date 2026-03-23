@@ -5,5 +5,5 @@
   changed_when: false
 
 - name: "{{ gotool_item.name }} | Install go tool"
-  shell: "/opt/go/bin/go install '{{ gotool_item.pkg }}'"
+  shell: "{{ gobin }} install '{{ gotool_item.pkg }}'"
   when: not gotool.stat.exists
