@@ -1,0 +1,16 @@
+- name: "{{ task_prefix }}Install zoxide"
+  community.general.homebrew:
+    state: latest
+    name: zoxide
+
+- name: "{{ task_prefix }}Add zoxide zsh config"
+  blockinfile:
+    path: "{{ zsh_config.path }}"
+    insertafter: EOF
+    block: |
+      eval "$(zoxide init --cmd cd zsh)"
+    prepend_newline: true
+    marker: "# {mark} dotfile:zoxide"
+    marker_begin: '>>>'
+    marker_end: '<<<'
+  when: zsh_config.exists
