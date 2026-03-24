@@ -1,0 +1,25 @@
+- name: "{{ task_prefix }}Install plugins"
+  community.general.homebrew:
+    state: latest
+    name: zsh-autosuggestions,zsh-syntax-highlighting
+
+- name: "{{ task_prefix }}Configure plugins"
+  blockinfile:
+    path: "{{ zsh_config.path }}"
+    block: |
+      if ! pgrep -u "$USER" ssh-agent &> /dev/null; then
+          eval "$(ssh-agent)" &> /dev/null
+      fi
+
+      if [ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+          source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+      fi
+      if [ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+          source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+      fi
+    append_newline: true
+    prepend_newline: true
+    marker: "# {mark} dotfile:zsh:plugins"
+    marker_begin: '>>>'
+    marker_end: '<<<'
+  when: zsh_config.exists

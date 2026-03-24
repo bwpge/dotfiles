@@ -99,6 +99,7 @@
     - role: ohmyposh
       tags:
         - ohmyposh
+        - omp
         - never
     - role: lsd
       tags:
