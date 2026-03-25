@@ -1,11 +1,3 @@
-- name: Install gpg
-  become: true
-  apt:
-    state: latest
-    pkg:
-      - gpg
-  when: os_family_lower == 'debian'
-
 - name: Ensure gpg directory exists
   file:
     path: "{{ ansible_facts['env'].HOME }}/.gnupg"

@@ -1,14 +1,26 @@
 ---
-- name: Check for zsh config
+- name: Check for .zshrc
   stat:
     path: "{{ ansible_facts['env'].HOME }}/.zshrc"
   register: _zshrc
   changed_when: false
 
-- name: Check for bash config
+- name: Check for .zprofile
+  stat:
+    path: "{{ ansible_facts['env'].HOME }}/.zprofile"
+  register: _zprofile
+  changed_when: false
+
+- name: Check for .bashrc
   stat:
     path: "{{ ansible_facts['env'].HOME }}/.bashrc"
   register: _bashrc
+  changed_when: false
+
+- name: Check for .profile
+  stat:
+    path: "{{ ansible_facts['env'].HOME }}/.profile"
+  register: _dotprofile
   changed_when: false
 
 - name: Set shell config facts
@@ -23,7 +35,14 @@
     zsh_config:
       path: "{{ _zshrc.stat.path | default('') }}"
       exists: "{{ _zshrc.stat.exists | bool }}"
+    zprofile:
+      path: "{{ _zprofile.stat.path | default('') }}"
+      exists: "{{ _zprofile.stat.exists | bool }}"
     bash_config:
       path: "{{ _bashrc.stat.path | default('') }}"
       exists: "{{ _bashrc.stat.exists | bool }}"
+    dotprofile:
+      path: "{{ _dotprofile.stat.path | default('') }}"
+      exists: "{{ _dotprofile.stat.exists | bool }}"
+
   changed_when: false

@@ -1,0 +1,6 @@
+- name: "{{ task_prefix }}Install gpg"
+  become: true
+  apt:
+    state: latest
+    pkg:
+      - gpg

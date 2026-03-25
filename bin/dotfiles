@@ -115,9 +115,11 @@ def cmd_run(playbook: str | None, tags: list[str], skip_tags: list[str]):
     ansible_flags = []
     if os.geteuid() != 0:
         pw = CONFIG.get("ansible_password")
+        ask_pass = CONFIG.get("ask_pass")
         if pw:
             ansible_flags.extend(["-e", f"ansible_become_pass='{pw}'"])
-        else:
+        # default on macos is to not ask for password since it's usually not needed
+        elif ask_pass or sys.platform != "darwin":
             ansible_flags.append("-K")
 
     if tags:
@@ -157,12 +159,10 @@ def main():
     p_list = subparsers.add_parser(
         "list", aliases=["ls"], help="list tags in a playbook"
     )
-    p_list.add_argument("playbook", nargs="?", help="optional playbook name")
+    p_list.add_argument("-b", "--playbook", help="optional playbook name")
     p_list.add_argument(
-        "-t",
-        "--tags",
+        "ls_tags",
         nargs="*",
-        dest="ls_tags",
         metavar="TAGS",
         help="tags to include with ansible-playbook --tags",
     )
@@ -185,7 +185,9 @@ def main():
         nargs="*",
         help="tags to skip with ansible-playbook --skip-tags",
     )
-    subparsers.add_parser("help", help="show this help")
+    p_run.add_argument(
+        "-K", "--ask-pass", action="store_true", help="same as ansible-playbook -K"
+    )
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -193,6 +195,7 @@ def main():
 
     args = parser.parse_args()
     load_config()
+    CONFIG["ask_pass"] = getattr(args, "ask_pass", False)
 
     if args.command == "help":
         parser.print_help()

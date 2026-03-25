@@ -4,25 +4,25 @@
   args:
     creates: "{{ ansible_facts['env'].HOME }}/.cargo/bin/rustup"
 
-- name: Add cargo env to shell config
-  blockinfile:
-    path: "{{ item.path }}"
-    block: |
-      if [ -f "$HOME/.cargo/env" ]; then
-          source "$HOME/.cargo/env"
-      fi
-    append_newline: true
-    prepend_newline: true
-    marker: "# {mark} dotfile:rust"
-    marker_begin: '>>>'
-    marker_end: '<<<'
-  when: item.exists
-  loop: "{{ shell_configs }}"
-
-- name: Remove rustup shell modifications
+- name: Remove rustup shell modifications in shell configs
   lineinfile:
     path: "{{ item.path }}"
     line: '. "$HOME/.cargo/env"'
     state: absent
   when: item.exists
   loop: "{{ shell_configs }}"
+
+- name: Remove rustup shell modifications in .profile
+  lineinfile:
+    path: "{{ dotprofile.path }}"
+    line: '. "$HOME/.cargo/env"'
+    state: absent
+  when: zsh_config.exists
+
+- name: Add cargo env to .zprofile
+  lineinfile:
+    path: "{{ zprofile.path }}"
+    line: |
+      [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+    create: true
+  when: zsh_config.exists

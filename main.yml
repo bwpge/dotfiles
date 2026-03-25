@@ -16,18 +16,16 @@
     - role: system
       tags:
         - system
-        - common
     - role: grub
       tags:
         - grub
-        - common
     - role: fzf
       tags:
         fzf
     - role: fonts
       tags:
         - fonts
-        - common
+        - rice
     - role: git
       tags:
         - git
@@ -53,17 +51,29 @@
     - role: wayland
       tags:
         - wayland
-        - common
     - role: x11
       tags:
         - x11
-        - common
+    - role: ohmyposh
+      tags:
+        - ohmyposh
+        - omp
+        - rice
+    - role: lsd
+      tags:
+        - lsd
+        - rice
     - role: xfce
       tags:
         - xfce
     - role: zsh
       tags:
         - zsh
+    # we want zoxide to run last, it adds a block to end of shell configs
+    - role: zoxide
+      tags:
+        - zoxide
+        - rice
 
     # run only if specified in tags
     - role: 1password
@@ -96,20 +106,7 @@
         - rust
         - dev
         - never
-    - role: ohmyposh
-      tags:
-        - ohmyposh
-        - omp
-        - never
-    - role: lsd
-      tags:
-        - lsd
-        - never
     - role: gpg
       tags:
         - gpg
-        - never
-    - role: zoxide
-      tags:
-        - zoxide
         - never
