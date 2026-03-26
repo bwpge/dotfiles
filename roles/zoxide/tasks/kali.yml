@@ -1,4 +1,6 @@
 - name: "{{ task_prefix }}Install zoxide"
-  community.general.homebrew:
+  become: true
+  apt:
     state: latest
-    name: zoxide
+    pkg:
+      - zoxide

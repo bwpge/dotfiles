@@ -10,3 +10,24 @@
   vars:
     task_prefix: "{{ os_id }} | "
   when: os_family_lower != os_id
+
+- name: "Check if installed"
+  shell: |
+    type zoxide > /dev/null 2>&1 && echo 'installed'
+  register: zoxidecmd
+  changed_when: false
+
+- name: "Add zoxide to shell config"
+  blockinfile:
+    path: "{{ shell_item.path }}"
+    insertafter: EOF
+    block: |
+      eval "$(zoxide init --cmd cd {{ shell_item.name }})"
+    prepend_newline: true
+    marker: "# {mark} dotfile:zoxide"
+    marker_begin: '>>>'
+    marker_end: '<<<'
+  when: zoxidecmd.stdout == 'installed' and shell_item.exists
+  loop: "{{ shell_configs }}"
+  loop_control:
+    loop_var: shell_item
