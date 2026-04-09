@@ -14,7 +14,7 @@
 
 - name: Add .local/bin to PATH
   lineinfile:
-    path: "{{ zprofile.path }}"
+    path: "{{ ansible_facts['env'].HOME }}/.zprofile"
     line: export PATH="$HOME/.local/bin:$PATH"
     create: true
   when: zsh_config.exists
@@ -147,3 +147,15 @@
     marker_begin: '>>>'
     marker_end: '<<<'
   when: zsh_config.exists
+
+- name: "Configure zsh prompt"
+  blockinfile:
+    path: "{{ zsh_config.path }}"
+    block: |
+      PROMPT='%B%F{green}%n@%m%f%b:%B%F{blue}%~%f%b$ '
+    append_newline: true
+    prepend_newline: true
+    marker: "# {mark} dotfile:zsh:prompt"
+    marker_begin: '>>>'
+    marker_end: '<<<'
+  when: zsh_config.exists and not has_desktop and os_id != 'kali'

@@ -45,3 +45,8 @@
     de_x11: "{{ _xdgst.stdout == 'x11' }}"
     de_wayland: "{{ _xdgst.stdout == 'wayland' }}"
   changed_when: false
+
+- name: Set has_desktop fact
+  set_fact:
+    has_desktop: "{{ de_xfce or de_i3 or de_hyprland or de_gnome or de_kde or de_x11 or de_wayland or ansible_facts['os_family'] == 'Darwin' }}"
+  changed_when: false

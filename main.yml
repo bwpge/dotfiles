@@ -22,17 +22,10 @@
     - role: fzf
       tags:
         fzf
-    - role: fonts
-      tags:
-        - fonts
-        - rice
     - role: git
       tags:
         - git
         - dev
-    - role: kitty
-      tags:
-        - kitty
     - role: nvim
       tags:
         - nvim
@@ -69,6 +62,18 @@
     - role: zsh
       tags:
         - zsh
+
+    # run when on a desktop
+    - role: fonts
+      tags:
+        - fonts
+        - rice
+      when: has_desktop | bool
+    - role: kitty
+      tags:
+        - kitty
+      when: has_desktop | bool
+
     # we want zoxide to run last, it adds a block to end of shell configs
     - role: zoxide
       tags:
