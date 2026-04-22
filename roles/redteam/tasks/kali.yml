@@ -3,7 +3,8 @@
     path: "{{ shell_item.path }}"
     block: |
       function attack {
-          name="$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^[:alnum:]]/_/g')"
+          parent="$(dirname "$1")"
+          name="$(basename "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^[:alnum:]]/_/g')"
           target="$2"
 
           if [ -z "$name" ]; then
@@ -21,6 +22,10 @@
           fi
 
           boxdir="$HOME/boxes/$name"
+          if [ "$parent" != "." ]; then
+              boxdir="$HOME/boxes/$parent/$name"
+          fi
+
           mkdir -p "$boxdir" && \
               tmux new-session -d -c "$boxdir" -s "$name" -e TARGET="$target" -e TARGET_NAME="$name" -e BOXDIR="$boxdir" && \
               tmux splitw -t "$name" -v -c "$boxdir" && \

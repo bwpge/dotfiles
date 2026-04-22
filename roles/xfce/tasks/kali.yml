@@ -11,6 +11,20 @@
     value: flameshot gui
     value_type: string
 
+- name: "{{ task_prefix }}Set secondary flameshot keybind"
+  community.general.xfconf:
+    channel: xfce4-keyboard-shortcuts
+    property: /commands/custom/<Shift><Super>dollar
+    value: flameshot gui
+    value_type: string
+
+- name: "{{ task_prefix }}Set secondary terminal keybind"
+  community.general.xfconf:
+    channel: xfce4-keyboard-shortcuts
+    property: /commands/custom/<Super>Return
+    value: exo-open --launch TerminalEmulator
+    value_type: string
+
 - name: "{{ task_prefix }}Set workspace background mode"
   community.general.xfconf:
     channel: xfce4-desktop
