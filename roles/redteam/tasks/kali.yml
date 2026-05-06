@@ -2,6 +2,8 @@
   blockinfile:
     path: "{{ shell_item.path }}"
     block: |
+      export ROCKYOU='/usr/share/wordlists/rockyou.txt'
+
       function attack {
           parent="$(dirname "$1")"
           name="$(basename "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^[:alnum:]]/_/g')"
@@ -26,8 +28,13 @@
               boxdir="$HOME/boxes/$parent/$name"
           fi
 
+          attacker="$(ip -br addr | grep tun0 | awk '{print $3}' | cut -d'/' -f1)"
+          if [ -z "$attacker" ]; then
+              attacker="$(hostname -I | awk '{print $1}')"
+          fi
+
           mkdir -p "$boxdir" && \
-              tmux new-session -d -c "$boxdir" -s "$name" -e TARGET="$target" -e TARGET_NAME="$name" -e BOXDIR="$boxdir" && \
+              tmux new-session -d -c "$boxdir" -s "$name" -e ATTACKER="$attacker" -e TARGET="$target" -e TARGET_NAME="$name" -e BOXDIR="$boxdir" && \
               tmux splitw -t "$name" -v -c "$boxdir" && \
               tmux rename-window -t "$name:1" recon && \
               tmux neww -c "$boxdir" -t "$name:" && \
@@ -46,6 +53,27 @@
 
       function urldecode {
           echo -n "$1" | python3 -c 'import urllib.parse;import sys;print(urllib.parse.unquote_plus(sys.stdin.read()))'
+      }
+
+      function myip {
+          ip_local="$(hostname -I | awk '{print $1}')"
+          ip_tun0="$(ip -br addr | grep tun0 | awk '{print $3}' | cut -d'/' -f1)"
+          [ -z "$ip_tun0" ] && echo "$ip_local" || echo "$ip_tun0"
+      }
+
+      function clip {
+          # check if stdin is terminal
+          if [ -t 0 ]; then
+              value="$@"
+              if [ -z "$value" ]; then
+                  echo "error: nothing to copy" >&2
+                  return 1
+              fi
+              echo -n "$@" | sed -Ez '$ s/\n+$//' | xclip -in -selection clipboard
+          # use stdin if not a terminal (most likely piped)
+          else
+              cat - | sed -Ez '$ s/\n+$//' | xclip -in -selection clipboard
+          fi
       }
 
       alias listen='nc -lvnp'
