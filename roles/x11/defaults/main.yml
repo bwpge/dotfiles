@@ -1,4 +1,0 @@
-x11_packages_debian:
-  - xclip
-  - xsel
-  - flameshot

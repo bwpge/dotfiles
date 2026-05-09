@@ -1,6 +1,0 @@
-- name: "{{ task_prefix }}Install utility packages"
-  become: true
-  apt:
-    state: latest
-    pkg: "{{ x11_packages_debian }}"
-  when: de_x11

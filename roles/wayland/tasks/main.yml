@@ -1,7 +1,0 @@
-- name: "Install wayland packages"
-  become: true
-  apt:
-    state: latest
-    pkg:
-      - wl-clipboard
-  when: de_wayland

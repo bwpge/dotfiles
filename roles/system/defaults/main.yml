@@ -8,6 +8,14 @@ system_packages_debian:
   - tree
   - vim
 
+system_packages_x11:
+  - xclip
+  - xsel
+  - flameshot
+
+system_packages_wayland:
+  - wl-clipboard
+
 system_packages_kali:
   - autorecon
   - awscli

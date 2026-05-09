@@ -33,12 +33,6 @@
     - role: redteam
       tags:
         - redteam
-    - role: wayland
-      tags:
-        - wayland
-    - role: x11
-      tags:
-        - x11
     - role: ohmyposh
       tags:
         - ohmyposh

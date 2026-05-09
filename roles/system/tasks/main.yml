@@ -1,1 +1,15 @@
 - ansible.builtin.import_tasks: "{{ playbook_dir }}/shared/include_os.yml"
+
+- name: "{{ task_prefix }}Install X11 packages"
+  become: true
+  apt:
+    state: latest
+    pkg: "{{ system_packages_x11 }}"
+  when: de_x11
+
+- name: "Install Wayland packages"
+  become: true
+  apt:
+    state: latest
+    pkg: "{{ system_packages_wayland }}"
+  when: de_wayland
