@@ -17,15 +17,4 @@
     mode: 0644
   when: not gpgconf.stat.exists
 
-- name: Import OS family tasks
-  include_tasks: "{{ item }}"
-  with_fileglob: "{{ os_family_lower }}.yml"
-  vars:
-    task_prefix: "{{ os_family_lower }} | "
-
-- name: Import OS ID tasks
-  include_tasks: "{{ item }}"
-  with_fileglob: "{{ os_id }}.yml"
-  vars:
-    task_prefix: "{{ os_id }} | "
-  when: os_family_lower != os_id
+- ansible.builtin.import_tasks: "{{ playbook_dir }}/shared/include_os.yml"

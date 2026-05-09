@@ -1,0 +1,13 @@
+- name: "Include OS family tasks ({{ os_family_lower }})"
+  ansible.builtin.include_tasks: "{{ _df_family_task }}"
+  vars:
+    _df_family_task: "{{ lookup('ansible.builtin.first_found', role_path ~ '/tasks/' ~ os_family_lower ~ '.yml', errors='ignore') }}"
+    task_prefix: "{{ os_family_lower }} | "
+  when: _df_family_task is not none
+
+- name: "Include OS id tasks ({{ os_id }})"
+  ansible.builtin.include_tasks: "{{ _df_id_task }}"
+  vars:
+    _df_id_task: "{{ lookup('ansible.builtin.first_found', role_path ~ '/tasks/' ~ os_id ~ '.yml', errors='ignore') }}"
+    task_prefix: "{{ os_id }} | "
+  when: _df_id_task is not none and os_family_lower != os_id

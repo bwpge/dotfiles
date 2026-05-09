@@ -1,16 +1,5 @@
-- name: Import OS family tasks
-  include_tasks: "{{ item }}"
-  with_fileglob: "{{ os_family_lower }}.yml"
+- ansible.builtin.import_tasks: "{{ playbook_dir }}/shared/include_os.yml"
   when: zsh_config.exists
-  vars:
-    task_prefix: "{{ os_family_lower }} | "
-
-- name: Import OS ID tasks
-  include_tasks: "{{ item }}"
-  with_fileglob: "{{ os_id }}.yml"
-  when: zsh_config.exists
-  vars:
-    task_prefix: "{{ os_id }} | "
 
 - name: Add .local/bin to PATH
   lineinfile:
