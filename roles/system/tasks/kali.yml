@@ -1,41 +1,8 @@
-- name: "{{ task_prefix}}Install build tools"
+- name: "{{ task_prefix}}Install packages"
   become: true
   apt:
     state: latest
-    pkg:
-      - build-essential
-      - cmake
-      - gettext
-      - git
-      - mingw-w64
-      - ninja-build
-
-- name: "{{ task_prefix}}Install extra packages"
-  become: true
-  apt:
-    state: latest
-    pkg:
-      - autorecon
-      - awscli
-      - bloodhound-ce-python
-      - docker-compose
-      - docker.io
-      - feroxbuster
-      - kali-wallpapers-all
-      - ncat
-      - python3-wsgidav
-      - wordlists
-      - seclists
-
-- name: "{{ task_prefix}}Install dotnet packages"
-  become: true
-  apt:
-    state: latest
-    pkg:
-      - dotnet-runtime-deps-6.0
-      - dotnet-sdk-6.0
-      - mono-devel
-      - mono-runtime
+    pkg: "{{ system_packages_kali }}"
 
 - name: "{{ task_prefix}}Check for ssh key"
   stat:

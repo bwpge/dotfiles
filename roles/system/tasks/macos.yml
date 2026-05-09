@@ -3,12 +3,7 @@
     update_homebrew: true
     upgrade: true
 
-- name: "{{ task_prefix }}Install build tools"
+- name: "{{ task_prefix }}Install packages"
   community.general.homebrew:
     state: latest
-    name: cmake,gettext,git,ninja
-
-- name: "{{ task_prefix }}Install utilities"
-  community.general.homebrew:
-    state: latest
-    pkg: bat,fzf,jq,lsd,ripgrep,tmux,tree
+    pkg: "{{ system_packages_macos }}"

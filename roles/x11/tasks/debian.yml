@@ -2,8 +2,5 @@
   become: true
   apt:
     state: latest
-    pkg:
-      - xclip
-      - xsel
-      - flameshot
+    pkg: "{{ x11_packages_debian }}"
   when: de_x11

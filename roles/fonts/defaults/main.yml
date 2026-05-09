@@ -1,0 +1,14 @@
+fonts_packages_debian:
+  - fonts-inter
+  - fonts-roboto
+  - fonts-jetbrains-mono
+
+fonts_nerdfonts_debian:
+  - name: JetBrainsMono Nerd Font
+    archive: JetBrainsMono.zip
+  - name: Iosevka Nerd Font
+    archive: Iosevka.zip
+
+fonts_nerdfonts_macos:
+  - JetBrainsMono
+  - Iosevka

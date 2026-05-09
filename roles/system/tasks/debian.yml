@@ -3,16 +3,8 @@
   apt:
     update_cache: true
 
-- name: "{{ task_prefix}}Install utilities"
+- name: "{{ task_prefix}}Install packages"
   become: true
   apt:
     state: latest
-    pkg:
-      - bat
-      - fzf
-      - jq
-      - python3-venv
-      - ripgrep
-      - tmux
-      - tree
-      - vim
+    pkg: "{{ system_packages_debian }}"

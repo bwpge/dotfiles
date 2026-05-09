@@ -2,17 +2,10 @@
   become: true
   apt:
     state: latest
-    pkg:
-      - fonts-inter
-      - fonts-roboto
-      - fonts-jetbrains-mono
+    pkg: "{{ fonts_packages_debian }}"
 
 - name: "{{ task_prefix }}Install nerd fonts"
   include_tasks: install_nerdfont.yml
-  loop:
-    - name: JetBrainsMono Nerd Font
-      archive: JetBrainsMono.zip
-    - name: Iosevka Nerd Font
-      archive: Iosevka.zip
+  loop: "{{ fonts_nerdfonts_debian }}"
   loop_control:
     loop_var: font_item

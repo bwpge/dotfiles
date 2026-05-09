@@ -1,0 +1,19 @@
+go_tools_kali:
+  - pkg: 'github.com/segmentio/golines@latest'
+    name: golines
+  - pkg: 'golang.org/x/tools/gopls@latest'
+    name: gopls
+  - pkg: 'honnef.co/go/tools/cmd/staticcheck@latest'
+    name: staticcheck
+  - pkg: 'mvdan.cc/gofumpt@latest'
+    name: gofumpt
+
+go_tools_macos:
+  - pkg: 'github.com/segmentio/golines@latest'
+    name: golines
+  - pkg: 'golang.org/x/tools/gopls@latest'
+    name: gopls
+  - pkg: 'honnef.co/go/tools/cmd/staticcheck@latest'
+    name: staticcheck
+  - pkg: 'mvdan.cc/gofumpt@latest'
+    name: gofumpt

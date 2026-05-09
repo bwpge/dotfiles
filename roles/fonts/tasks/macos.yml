@@ -5,9 +5,7 @@
 
 - name: "{{ task_prefix }}Install nerd fonts"
   include_tasks: install_nerdfont_macos.yml
-  loop:
-    - JetBrainsMono
-    - Iosevka
+  loop: "{{ fonts_nerdfonts_macos }}"
   loop_control:
     loop_var: font_item
 

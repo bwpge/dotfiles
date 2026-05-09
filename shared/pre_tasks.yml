@@ -1,0 +1,9 @@
+- name: Import pre-tasks
+  include_tasks:
+    file: "{{ item }}"
+    apply:
+      tags:
+        - always
+  with_fileglob: "{{ playbook_dir }}/pre_tasks/*.yml"
+  tags:
+    - always

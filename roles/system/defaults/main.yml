@@ -1,0 +1,45 @@
+system_packages_debian:
+  - bat
+  - fzf
+  - jq
+  - python3-venv
+  - ripgrep
+  - tmux
+  - tree
+  - vim
+
+system_packages_kali:
+  - autorecon
+  - awscli
+  - bloodhound-ce-python
+  - build-essential
+  - cmake
+  - docker-compose
+  - docker.io
+  - dotnet-runtime-deps-6.0
+  - dotnet-sdk-6.0
+  - feroxbuster
+  - gettext
+  - git
+  - kali-wallpapers-all
+  - mingw-w64
+  - mono-devel
+  - mono-runtime
+  - ncat
+  - ninja-build
+  - python3-wsgidav
+  - seclists
+  - wordlists
+
+system_packages_macos:
+  - bat
+  - cmake
+  - fzf
+  - gettext
+  - git
+  - jq
+  - lsd
+  - ninja
+  - ripgrep
+  - tmux
+  - tree

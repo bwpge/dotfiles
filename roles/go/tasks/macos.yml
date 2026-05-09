@@ -9,14 +9,6 @@
 
 - name: "{{ task_prefix }}Install go tools"
   include_tasks: install_tool.yml
-  loop:
-    - pkg: 'github.com/segmentio/golines@latest'
-      name: golines
-    - pkg: 'golang.org/x/tools/gopls@latest'
-      name: gopls
-    - pkg: 'honnef.co/go/tools/cmd/staticcheck@latest'
-      name: staticcheck
-    - pkg: 'mvdan.cc/gofumpt@latest'
-      name: gofumpt
+  loop: "{{ go_tools_macos }}"
   loop_control:
     loop_var: gotool_item

@@ -2,15 +2,7 @@
   hosts: all
 
   pre_tasks:
-    - name: Import pre-tasks
-      include_tasks:
-        file: "{{ item }}"
-        apply:
-          tags:
-            - always
-      with_fileglob: "pre_tasks/*.yml"
-      tags:
-        - always
+    - import_tasks: "{{ playbook_dir }}/shared/pre_tasks.yml"
 
   roles:
     - role: system
