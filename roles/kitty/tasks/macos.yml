@@ -1,5 +1,0 @@
-- name: "{{ task_prefix }}Install secondary config"
-  copy:
-    src: kitty-macos.conf
-    dest: "{{ ansible_facts['env'].HOME }}/.config/kitty/kitty-macos.conf"
-    mode: 0644

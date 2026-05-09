@@ -1,34 +1,62 @@
-- name: "Ensure config directory exists"
-  file:
-    path: "{{ ansible_facts['env'].HOME }}/.config/kitty"
-    state: directory
-
-- name: "Install config"
-  copy:
-    src: kitty.conf
-    dest: "{{ ansible_facts['env'].HOME }}/.config/kitty/kitty.conf"
-    mode: 0644
-
-- name: "Install right-click kitten"
-  copy:
-    src: right_click_copy_paste.py
-    dest: "{{ ansible_facts['env'].HOME }}/.config/kitty/right_click_copy_paste.py"
-    mode: 0644
-
 - ansible.builtin.import_tasks: "{{ playbook_dir }}/shared/include_os.yml"
 
-- name: "Add kitty ssh fix"
-  blockinfile:
-    path: "{{ shell_item.path }}"
-    block: |
-      # fixes terminal issues with ssh
-      [[ "$TERM" == "xterm-kitty" ]] && alias ssh="TERM=xterm-256color ssh"
-    append_newline: true
-    prepend_newline: true
-    marker: "# {mark} dotfile:kitty"
-    marker_begin: '>>>'
-    marker_end: '<<<'
-  when: shell_item.exists
-  loop: "{{ shell_configs }}"
-  loop_control:
-    loop_var: shell_item
+- name: "Stat kitty binary candidates"
+  stat:
+    path: "{{ item }}"
+  register: _kitty_checks
+  loop: "{{ kitty_binary_paths }}"
+  changed_when: false
+
+- name: "Set kitty installed fact"
+  set_fact:
+    kitty_installed: "{{ _kitty_checks.results | selectattr('stat.exists') | list | length > 0 }}"
+  changed_when: false
+
+- name: "Configure kitty"
+  when: kitty_installed
+  block:
+    - name: "Ensure config directory exists"
+      file:
+        path: "{{ ansible_facts['env'].HOME }}/.config/kitty"
+        state: directory
+
+    - name: "Install config"
+      copy:
+        src: kitty.conf
+        dest: "{{ ansible_facts['env'].HOME }}/.config/kitty/kitty.conf"
+        mode: 0644
+
+    - name: "Install right-click kitten"
+      copy:
+        src: right_click_copy_paste.py
+        dest: "{{ ansible_facts['env'].HOME }}/.config/kitty/right_click_copy_paste.py"
+        mode: 0644
+
+    - name: "Install OS-specific kitty configs"
+      copy:
+        src: "{{ item }}"
+        dest: "{{ ansible_facts['env'].HOME }}/.config/kitty/{{ item | basename }}"
+        mode: 0644
+      loop: "{{ _kitty_os_configs }}"
+      vars:
+        _kitty_os_configs: >-
+          {{ [
+            lookup('ansible.builtin.first_found', role_path ~ '/files/kitty-' ~ os_family_lower ~ '.conf', errors='ignore'),
+            lookup('ansible.builtin.first_found', role_path ~ '/files/kitty-' ~ os_id ~ '.conf', errors='ignore')
+          ] | reject('none') | unique | list }}
+
+    - name: "Add kitty ssh fix"
+      blockinfile:
+        path: "{{ shell_item.path }}"
+        block: |
+          # fixes terminal issues with ssh
+          [[ "$TERM" == "xterm-kitty" ]] && alias ssh="TERM=xterm-256color ssh"
+        append_newline: true
+        prepend_newline: true
+        marker: "# {mark} dotfile:kitty"
+        marker_begin: '>>>'
+        marker_end: '<<<'
+      when: shell_item.exists
+      loop: "{{ shell_configs }}"
+      loop_control:
+        loop_var: shell_item

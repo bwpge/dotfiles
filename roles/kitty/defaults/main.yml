@@ -1,0 +1,5 @@
+kitty_binary_paths:
+  - /opt/kitty.app/bin/kitty
+  - /Applications/kitty.app/Contents/MacOS/kitty
+  - /opt/homebrew/bin/kitty
+  - /usr/local/bin/kitty
