@@ -1,61 +1,64 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
-if command dotfiles &>/dev/null; then
+if command -v dotfiles >/dev/null 2>&1; then
     echo "dotfiles already installed"
     exit 0
 fi
-
-dfdir="$1"
-dfconf="/etc/dotfiles.conf"
 
 BRED='\033[1;31m'
 CYAN='\033[0;36m'
 BCYAN='\033[1;36m'
 BGREEN='\033[1;32m'
+BYEL='\033[1;33m'
 NC='\033[0m'
 
-__sudo="sudo"
-if [ "$(id -u)" -eq 0 ]; then
-    __sudo=""
-fi
-
 _task() {
-    echo -e "${BGREEN}[+] $1$NC"
+    printf '%b\n' "${BGREEN}[+] $1${NC}"
 }
 
 _err() {
-    echo -e "${BRED} error: $1$NC"
+    printf '%b\n' "${BRED}error: $1${NC}" >&2
 }
 
+if [ $# -ne 1 ]; then
+    printf 'usage: %s <INSTALL_DIR>\n' "$0" >&2
+    exit 1
+fi
+
+dfdir="$1"
 if [ ! -d "$dfdir" ]; then
     _err "invalid install directory '$dfdir'"
     exit 1
 fi
+dfdir="$(cd "$dfdir" && pwd)"
 _task "Using install directory: $dfdir"
 
 get_os_id() {
     if [ -f /etc/os-release ]; then
-        awk -F= '/^ID=/{print $2}' /etc/os-release | sed 's/"//g'
-    elif command sw_vers > /dev/null 2>&1; then
+        awk -F= '/^ID=/{gsub(/"/, "", $2); print $2}' /etc/os-release
+    elif command -v sw_vers >/dev/null 2>&1; then
         sw_vers -productName
     fi
 }
 
 debian_setup() {
-    _task "Updating system"
-    $__sudo apt update -y
-    $__sudo apt upgrade -y
+    local sudo=""
+    if [ "$(id -u)" -ne 0 ]; then
+        sudo="sudo"
+    fi
+
+    _task "Refreshing package index"
+    $sudo apt update
 
     _task "Installing ansible"
-    $__sudo apt install -y ansible
+    $sudo apt install -y ansible
 }
 
 macos_setup() {
-    _task "Updating system"
+    _task "Refreshing package index"
     brew update
-    brew upgrade
 
     _task "Installing ansible"
     brew install ansible
@@ -63,22 +66,19 @@ macos_setup() {
 
 common_setup() {
     src="$dfdir/bin/dotfiles"
-    target_dir="/usr/local/bin"
+    target_dir="$HOME/.local/bin"
     target="$target_dir/dotfiles"
 
     if [ ! -f "$src" ]; then
-        _err "error: could not determine path to dotfiles script" >&2
+        _err "could not determine path to dotfiles script"
         exit 1
     fi
 
     echo "ensure directory exists: $target_dir"
-    $__sudo mkdir -p $target_dir
+    mkdir -p "$target_dir"
 
     echo "creating link: $src -> $target"
-    $__sudo ln -sf $src $target
-
-    echo "creating config file: $dfconf"
-    $__sudo touch $dfconf
+    ln -sf "$src" "$target"
 }
 
 os_id="$(get_os_id | tr '[:upper:]' '[:lower:]')"
@@ -102,6 +102,12 @@ common_setup
 _task "Installing required modules"
 ansible-galaxy install -r "$dfdir/requirements.yml"
 
-echo -e "\n${CYAN}Finished setting up! Run$NC\n"
-echo -e "${BCYAN}    dotfiles help$NC"
-echo -e "\n${CYAN}for more information$NC"
+if ! command -v dotfiles >/dev/null 2>&1; then
+    printf '\n%b\n' "${BYEL}warning:${NC} '$HOME/.local/bin' is not on your PATH" >&2
+    printf '%b\n' "add it to your shell profile, e.g.:" >&2
+    printf '%b\n' '    export PATH="$HOME/.local/bin:$PATH"\n' >&2
+fi
+
+printf '\n%b\n\n' "${CYAN}Finished setting up! Run${NC}"
+printf '%b\n' "${BCYAN}    dotfiles --help${NC}"
+printf '\n%b\n' "${CYAN}for more information${NC}"

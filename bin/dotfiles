@@ -9,6 +9,7 @@ from pathlib import Path
 
 DF_DIR = Path(__file__).resolve().parent.parent
 DF_BIN_FILE = DF_DIR.joinpath("bin/dotfiles")
+DF_INSTALL_LINK = Path.home() / ".local" / "bin" / "dotfiles"
 DF_CONF_FILES = [
     DF_DIR.joinpath("dotfiles.conf"),
     Path("/etc/dotfiles.conf"),
@@ -19,7 +20,7 @@ CONFIG = {}
 
 def bail(msg):
     print(f"error: {msg}", file=sys.stderr)
-    exit(1)
+    sys.exit(1)
 
 
 def load_config():
@@ -30,27 +31,25 @@ def load_config():
         with open(p) as f:
             for line in f:
                 s = line.strip()
-                if s.startswith("#") or not line:
+                if not s or s.startswith("#"):
                     continue
 
                 splits = s.split(maxsplit=1)
                 if len(splits) != 2:
-                    bail(f"config error: invalid syntax: '{line}'")
+                    bail(f"config error: invalid syntax: '{s}'")
 
-                k = splits[0].strip()
-                v = splits[1].strip()
-                CONFIG[k] = v
+                CONFIG[splits[0]] = splits[1]
             return
 
 
-def get_playbook_path(playbook: str | None) -> str:
+def get_playbook_path(playbook: str | None) -> Path:
     if not playbook:
         playbook = CONFIG.get("playbook", "main")
     playbook_path = DF_DIR.joinpath(f"{playbook}.yml")
 
     if not playbook_path.is_file():
         bail(
-            f"error: playbook '{playbook}' does not exist "
+            f"playbook '{playbook}' does not exist "
             f"(expected '{playbook_path}' to be a file)"
         )
 
@@ -58,8 +57,20 @@ def get_playbook_path(playbook: str | None) -> str:
 
 
 def cmd_uninstall(purge: bool):
+    if DF_INSTALL_LINK.is_symlink():
+        target = DF_INSTALL_LINK.resolve()
+        if target == DF_BIN_FILE.resolve():
+            try:
+                DF_INSTALL_LINK.unlink()
+                print(f"removed symlink: {DF_INSTALL_LINK}")
+            except PermissionError:
+                bail(
+                    f"cannot remove '{DF_INSTALL_LINK}' (permission denied) "
+                    f"— re-run with sudo"
+                )
+
     if DF_BIN_FILE.exists():
-        print(f"removing link: {DF_BIN_FILE}")
+        print(f"removing script: {DF_BIN_FILE}")
         DF_BIN_FILE.unlink()
 
     if purge:
@@ -71,30 +82,44 @@ def cmd_uninstall(purge: bool):
                 except Exception as e:
                     print(f"failed to remove '{p}': {e}")
 
-    if DF_DIR.exists():
-        print(f"removing dotfiles directory: {DF_DIR}")
-        shutil.rmtree(DF_DIR)
+        if DF_DIR.exists():
+            print(f"removing dotfiles directory: {DF_DIR}")
+            shutil.rmtree(DF_DIR)
 
 
 def cmd_update():
-    git_cmd = f"git -C {DF_DIR}"
-    subprocess.run(
-        f"{git_cmd} fetch && {git_cmd} log main..origin/main --oneline | grep -q . && {git_cmd} reset --hard origin/main || echo 'Already up to date.'",
-        shell=True,
-        check=False,
-    )
+    git = ["git", "-C", str(DF_DIR)]
+    branch = subprocess.run(
+        [*git, "rev-parse", "--abbrev-ref", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    subprocess.run([*git, "fetch"], check=True)
+
+    log = subprocess.run(
+        [*git, "log", f"{branch}..origin/{branch}", "--oneline"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    if not log:
+        print("Already up to date.")
+        return
+
+    subprocess.run([*git, "reset", "--hard", f"origin/{branch}"], check=True)
 
 
-def cmd_list(playbook: str | None, tags: list[str], skip_tags: list[str]):
+def cmd_list(playbook: str | None, tags: str, skip_tags: str):
     pbpath = get_playbook_path(playbook)
-    if not pbpath.exists():
-        bail(f"playbook '{pbpath}' does not exist")
 
     ansible_flags = []
     if tags:
-        ansible_flags.extend(["-t", ",".join(tags)])
+        ansible_flags.extend(["-t", tags])
     if skip_tags:
-        ansible_flags.extend(["--skip-tags", ",".join(skip_tags)])
+        ansible_flags.extend(["--skip-tags", skip_tags])
 
     cmd = [
         "ansible-playbook",
@@ -108,7 +133,7 @@ def cmd_list(playbook: str | None, tags: list[str], skip_tags: list[str]):
     subprocess.run(cmd, cwd=DF_DIR, check=True)
 
 
-def cmd_run(playbook: str | None, tags: list[str], skip_tags: list[str]):
+def cmd_run(playbook: str | None, tags: str, skip_tags: str):
     pbpath = get_playbook_path(playbook)
     print(f"Executing playbook: {pbpath}")
 
@@ -117,19 +142,25 @@ def cmd_run(playbook: str | None, tags: list[str], skip_tags: list[str]):
         pw = CONFIG.get("ansible_password")
         ask_pass = CONFIG.get("ask_pass")
         if pw:
-            ansible_flags.extend(["-e", f"ansible_become_pass='{pw}'"])
+            os.environ["DOTFILES_BECOME_PASS"] = pw
+            ansible_flags.extend(
+                [
+                    "-e",
+                    "ansible_become_pass={{ lookup('env', 'DOTFILES_BECOME_PASS') }}",
+                ]
+            )
         # default on macos is to not ask for password since it's usually not needed
         elif ask_pass or sys.platform != "darwin":
             ansible_flags.append("-K")
 
     if tags:
         print("Using tags:")
-        print("\n".join(f"  - {t}" for t in tags))
-        ansible_flags.extend(["-t", ",".join(tags)])
+        print("\n".join(f"  - {t}" for t in tags.split(",")))
+        ansible_flags.extend(["-t", tags])
     if skip_tags:
         print("Skipping tags:")
-        print("\n".join(f"  - {t}" for t in skip_tags))
-        ansible_flags.extend(["--skip-tags", ",".join(skip_tags)])
+        print("\n".join(f"  - {t}" for t in skip_tags.split(",")))
+        ansible_flags.extend(["--skip-tags", skip_tags])
 
     cmd = [
         "ansible-playbook",
@@ -147,13 +178,15 @@ def main():
     parser = argparse.ArgumentParser(
         description="Dotfiles management solution with ansible"
     )
-    subparsers = parser.add_subparsers(dest="command")
-    subparsers.add_parser("install", help="install the dotfiles script")
+    subparsers = parser.add_subparsers(dest="command", required=True)
     p_uninstall = subparsers.add_parser(
         "uninstall", help="remove installed script and config"
     )
     p_uninstall.add_argument(
-        "-p", "--purge", help="delete config files when uninstalling"
+        "-p",
+        "--purge",
+        action="store_true",
+        help="also delete config files and the dotfiles directory",
     )
     subparsers.add_parser("update", help="update dotfiles repository")
     p_list = subparsers.add_parser(
@@ -162,44 +195,45 @@ def main():
     p_list.add_argument("-b", "--playbook", help="optional playbook name")
     p_list.add_argument(
         "ls_tags",
-        nargs="*",
+        nargs="?",
+        default="",
         metavar="TAGS",
-        help="tags to include with ansible-playbook --tags",
+        help="comma-separated tags to include (ansible-playbook --tags)",
     )
     p_list.add_argument(
         "-x",
         "--skip-tags",
-        nargs="*",
+        default="",
         dest="ls_skip_tags",
         metavar="SKIP_TAGS",
-        help="tags to skip with ansible-playbook --skip-tags",
+        help="comma-separated tags to skip (ansible-playbook --skip-tags)",
     )
     p_run = subparsers.add_parser("run", help="run a playbook")
     p_run.add_argument("-b", "--playbook", help="specify playbook to run")
     p_run.add_argument(
-        "tags", nargs="*", help="tags to include with ansible-playbook --tags"
+        "tags",
+        nargs="?",
+        default="",
+        metavar="TAGS",
+        help="comma-separated tags to include (ansible-playbook --tags)",
     )
     p_run.add_argument(
         "-x",
         "--skip-tags",
-        nargs="*",
-        help="tags to skip with ansible-playbook --skip-tags",
+        default="",
+        metavar="SKIP_TAGS",
+        help="comma-separated tags to skip (ansible-playbook --skip-tags)",
     )
     p_run.add_argument(
         "-K", "--ask-pass", action="store_true", help="same as ansible-playbook -K"
     )
 
-    if len(sys.argv) == 1:
-        parser.print_help()
-        exit(0)
-
     args = parser.parse_args()
     load_config()
-    CONFIG["ask_pass"] = getattr(args, "ask_pass", False)
+    if getattr(args, "ask_pass", False):
+        CONFIG["ask_pass"] = True
 
-    if args.command == "help":
-        parser.print_help()
-    elif args.command == "uninstall":
+    if args.command == "uninstall":
         cmd_uninstall(args.purge)
     elif args.command == "update":
         cmd_update()
@@ -207,9 +241,12 @@ def main():
         cmd_list(args.playbook, args.ls_tags, args.ls_skip_tags)
     elif args.command == "run":
         cmd_run(args.playbook, args.tags, args.skip_tags)
-    else:
-        bail(f"unknown command '{args.command}'")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit(130)
+    except subprocess.CalledProcessError as e:
+        sys.exit(e.returncode)
