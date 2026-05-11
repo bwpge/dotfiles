@@ -7,6 +7,18 @@
     creates: "{{ ansible_facts['env'].HOME }}/.local/bin/oh-my-posh"
   when: ansible_facts['system'] == 'Linux'
 
+- name: "Ensure omp config directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env'].HOME }}/.config/oh-my-posh"
+    state: directory
+    mode: '0755'
+
+- name: "Install omp config"
+  ansible.builtin.copy:
+    src: zcmder.omp.json
+    dest: "{{ ansible_facts['env'].HOME }}/.config/oh-my-posh/zcmder.omp.json"
+    mode: '0644'
+
 - name: "Update prompt"
   blockinfile:
     path: "{{ zsh_config.path }}"
@@ -21,7 +33,7 @@
 
       VIRTUAL_ENV_DISABLE_PROMPT=1
 
-      eval "$(oh-my-posh init zsh --config 'https://raw.githubusercontent.com/bwpge/zcmder-omp/main/zcmder.omp.json')"
+      eval "$(oh-my-posh init zsh --config "$HOME/.config/oh-my-posh/zcmder.omp.json")"
     append_newline: true
     prepend_newline: true
     marker: "# {mark} dotfile:omp"

@@ -1,0 +1,116 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "version": 4,
+  "final_space": true,
+  "blocks": [
+    {
+      "type": "prompt",
+      "alignment": "left",
+      "segments": [
+        {
+          "options": {
+            "cache_duration": "24h",
+            "strategy": "session"
+          },
+          "template": "{{ if and (.Env.POSH_CURSOR_LINE) (ne .Env.POSH_CURSOR_LINE \"1\") }}\n{{ end }}",
+          "type": "text",
+          "style": "plain"
+        },
+        {
+          "options": {
+            "cache_duration": "none",
+            "display_mode": "environment",
+            "fetch_virtual_env": true,
+            "home_enabled": true
+          },
+          "template": "{{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }}:{{ end }}{{ .Major }}.{{ .Minor }} {{ end }}",
+          "foreground": "yellow",
+          "type": "python",
+          "style": "plain"
+        },
+        {
+          "options": {
+            "cache_duration": "none"
+          },
+          "foreground": "blue",
+          "type": "text",
+          "style": "plain",
+          "foreground_templates": ["{{if .Root }}red{{ end }}"],
+          "templates": [
+            "{{ if and (eq .Env.ZCMDER_USERNAME \"1\") (eq .Env.ZCMDER_HOSTNAME \"1\") }}{{ .UserName }}@{{ .HostName }} {{ end }}",
+            "{{ if and (eq .Env.ZCMDER_USERNAME \"1\") (ne .Env.ZCMDER_HOSTNAME \"1\") }}{{ .UserName }} {{ end }}",
+            "{{ if and (ne .Env.ZCMDER_USERNAME \"1\") (eq .Env.ZCMDER_HOSTNAME \"1\") }}{{ .HostName }} {{ end }}"
+          ],
+          "templates_logic": "first_match"
+        },
+        {
+          "options": {
+            "folder_separator_icon": "/",
+            "style": "full"
+          },
+          "template": "{{ .Path }}{{ if not .Writable }} {{ end }} ",
+          "type": "path",
+          "style": "plain",
+          "foreground": "green",
+          "foreground_templates": ["{{ if not .Writable }}red{{ end }}"]
+        },
+        {
+          "options": {
+            "cache_duration": "none"
+          },
+          "template": "{{ if .Segments.Contains \"Git\" }}on {{ end }}",
+          "type": "text",
+          "style": "plain"
+        },
+        {
+          "options": {
+            "branch_icon": " ",
+            "cherry_pick_icon": " ",
+            "commit_icon": " ",
+            "fetch_status": true,
+            "fetch_upstream_icon": false,
+            "tag_icon": " "
+          },
+          "foreground": "cyan",
+          "type": "git",
+          "style": "plain",
+          "foreground_templates": [
+            "{{ if and (gt .Behind 0) (gt .Ahead 0) }}magenta{{ end }}",
+            "{{ if gt .Working.Unmerged 0 }}magenta{{ end }}",
+            "{{ if gt .Working.Untracked 0 }}red{{ end }}",
+            "{{ if .Working.Changed }}yellow{{ end }}",
+            "{{ if .Staging.Changed }}blue{{ end }}",
+            "{{ if not .Commit.Sha }}darkGray{{ end }}"
+          ],
+          "templates": [
+            "{{ if .Commit.Sha }}{{ .HEAD }}{{ else }} (new){{ end }}",
+            "{{ if or .Working.Changed .Staging.Changed }} *{{ end }}",
+            "{{ if and (gt .Behind 0) (gt .Ahead 0) }} ↑↓{{ end }}",
+            "{{ if and (gt .Behind 0) (eq .Ahead 0) }} ↓{{ end }}",
+            "{{ if and (eq .Behind 0) (gt .Ahead 0 ) }} ↑{{ end }}",
+            "{{ if and (.Commit.Sha) (not .Working.Changed) (not .Staging.Changed) }} ✓{{ end }}",
+            "{{ if .StashCount }} ⚑{{ end }}"
+          ]
+        },
+        {
+          "options": {
+            "cache_duration": "none"
+          },
+          "template": "\n",
+          "type": "text",
+          "style": "plain"
+        },
+        {
+          "options": {
+            "cache_duration": "none"
+          },
+          "template": "{{ if .Root }}#{{ else }}λ{{ end }}",
+          "foreground": "darkGray",
+          "type": "text",
+          "style": "plain",
+          "foreground_templates": ["{{ if gt .Code 0 }}red{{ end }}"]
+        }
+      ]
+    }
+  ]
+}
