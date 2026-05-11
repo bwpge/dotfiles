@@ -4,6 +4,18 @@
     block: |
       export ROCKYOU='/usr/share/wordlists/rockyou.txt'
 
+      function tvpn {
+          vpnfile="$1"
+          if [ -z "$vpnfile" ] && [ -d /mnt/shared ]; then
+              vpnfile="$(find /mnt/shared -type f -name '*.ovpn' | fzf --height='~100%')"
+          fi
+          if [ -f "$vpnfile" ]; then
+              tmux new -s vpn -A "sudo openvpn $vpnfile"
+          else
+              echo "error: a VPN file is required" >&2
+          fi
+      }
+
       function attack {
           parent="$(dirname "$1")"
           name="$(basename "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^[:alnum:]]/_/g')"
