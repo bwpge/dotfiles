@@ -28,21 +28,21 @@
     shell_configs:
       - name: zsh
         path: "{{ _zshrc.stat.path | default('') }}"
-        exists: "{{ _zshrc.stat.exists | bool }}"
+        exists: "{{ _zshrc.stat.exists }}"
       - name: bash
         path: "{{ _bashrc.stat.path | default('') }}"
-        exists: "{{ _bashrc.stat.exists | bool }}"
+        exists: "{{ _bashrc.stat.exists }}"
     zsh_config:
       path: "{{ _zshrc.stat.path | default('') }}"
-      exists: "{{ _zshrc.stat.exists | bool }}"
+      exists: "{{ _zshrc.stat.exists }}"
     zprofile:
       path: "{{ _zprofile.stat.path | default('') }}"
-      exists: "{{ _zprofile.stat.exists | bool }}"
+      exists: "{{ _zprofile.stat.exists }}"
     bash_config:
       path: "{{ _bashrc.stat.path | default('') }}"
-      exists: "{{ _bashrc.stat.exists | bool }}"
+      exists: "{{ _bashrc.stat.exists }}"
     dotprofile:
       path: "{{ _dotprofile.stat.path | default('') }}"
-      exists: "{{ _dotprofile.stat.exists | bool }}"
+      exists: "{{ _dotprofile.stat.exists }}"
 
   changed_when: false

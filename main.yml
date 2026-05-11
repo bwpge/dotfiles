@@ -33,11 +33,6 @@
     - role: redteam
       tags:
         - redteam
-    - role: ohmyposh
-      tags:
-        - ohmyposh
-        - omp
-        - rice
     - role: lsd
       tags:
         - lsd
@@ -54,11 +49,17 @@
       tags:
         - fonts
         - rice
-      when: has_desktop | bool
+      when: has_desktop
     - role: kitty
       tags:
         - kitty
-      when: has_desktop | bool
+      when: has_desktop and ansible_facts['system'] == 'Linux'
+    - role: ohmyposh
+      tags:
+        - ohmyposh
+        - omp
+        - rice
+      when: has_desktop
 
     # we want zoxide to run last, it adds a block to end of shell configs
     - role: zoxide

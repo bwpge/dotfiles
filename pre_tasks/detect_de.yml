@@ -25,7 +25,7 @@
 
 - name: Detect hyprland
   shell: |
-    command -v Hyprland || true
+    command -v Hyprland || command -v hyprland || true
   register: _hyprland
   changed_when: false
 
@@ -42,11 +42,9 @@
     de_hyprland: "{{ _hyprland.stdout != '' }}"
     de_gnome: "{{ _gnome.stdout != '' }}"
     de_kde: "{{ _kde.stdout != '' }}"
-    de_x11: "{{ _xdgst.stdout == 'x11' }}"
-    de_wayland: "{{ _xdgst.stdout == 'wayland' }}"
-  changed_when: false
+    session_x11: "{{ _xdgst.stdout == 'x11' }}"
+    session_wayland: "{{ _xdgst.stdout == 'wayland' }}"
 
 - name: Set has_desktop fact
   set_fact:
-    has_desktop: "{{ de_xfce or de_i3 or de_hyprland or de_gnome or de_kde or de_x11 or de_wayland or ansible_facts['os_family'] == 'Darwin' }}"
-  changed_when: false
+    has_desktop: "{{ de_xfce or de_i3 or de_hyprland or de_gnome or de_kde or ansible_facts['system'] == 'Darwin' }}"
