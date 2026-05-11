@@ -112,7 +112,7 @@ def cmd_update():
     subprocess.run([*git, "reset", "--hard", f"origin/{branch}"], check=True)
 
 
-def cmd_list(playbook: str | None, tags: str, skip_tags: str):
+def cmd_list(playbook: str | None, tags: str, skip_tags: str, passthrough: list[str]):
     pbpath = get_playbook_path(playbook)
 
     ansible_flags = []
@@ -130,10 +130,11 @@ def cmd_list(playbook: str | None, tags: str, skip_tags: str):
         "--list-tasks",
     ]
     cmd.extend(ansible_flags)
+    cmd.extend(passthrough)
     subprocess.run(cmd, cwd=DF_DIR, check=True)
 
 
-def cmd_run(playbook: str | None, tags: str, skip_tags: str):
+def cmd_run(playbook: str | None, tags: str, skip_tags: str, passthrough: list[str]):
     pbpath = get_playbook_path(playbook)
     print(f"Executing playbook: {pbpath}")
 
@@ -171,6 +172,7 @@ def cmd_run(playbook: str | None, tags: str, skip_tags: str):
         pbpath,
     ]
     cmd.extend(ansible_flags)
+    cmd.extend(passthrough)
     subprocess.run(cmd, cwd=DF_DIR, check=True)
 
 
@@ -228,7 +230,15 @@ def main():
         "-K", "--ask-pass", action="store_true", help="same as ansible-playbook -K"
     )
 
-    args = parser.parse_args()
+    if "--" in sys.argv:
+        idx = sys.argv.index("--")
+        passthrough = sys.argv[idx + 1 :]
+        own_argv = sys.argv[1:idx]
+    else:
+        passthrough = []
+        own_argv = sys.argv[1:]
+
+    args = parser.parse_args(own_argv)
     load_config()
     if getattr(args, "ask_pass", False):
         CONFIG["ask_pass"] = True
@@ -238,9 +248,9 @@ def main():
     elif args.command == "update":
         cmd_update()
     elif args.command in ("list", "ls"):
-        cmd_list(args.playbook, args.ls_tags, args.ls_skip_tags)
+        cmd_list(args.playbook, args.ls_tags, args.ls_skip_tags, passthrough)
     elif args.command == "run":
-        cmd_run(args.playbook, args.tags, args.skip_tags)
+        cmd_run(args.playbook, args.tags, args.skip_tags, passthrough)
 
 
 if __name__ == "__main__":
