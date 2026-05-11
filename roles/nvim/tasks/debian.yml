@@ -52,3 +52,69 @@
       become: true
 
   when: not _nvim.stat.exists
+
+- name: "{{ task_prefix }}Query latest tree-sitter version"
+  uri:
+    url: https://api.github.com/repos/tree-sitter/tree-sitter/releases/latest
+  register: ts_info
+  changed_when: false
+
+- name: "{{ task_prefix }}Register tree-sitter latest"
+  set_fact:
+    ts_latest: "tree-sitter-{{ ts_info.json.tag_name }}"
+
+- name: "{{ task_prefix }}Check current tree-sitter installation"
+  stat:
+    path: "/opt/{{ ts_latest }}"
+  register: _ts
+  changed_when: false
+
+- name: "{{ task_prefix }}Install tree-sitter"
+  block:
+    - name: "{{ task_prefix }}Register tree-sitter arch"
+      set_fact:
+        ts_arch: "{{ {'x86_64': 'x64', 'aarch64': 'arm64'}[ansible_facts['machine']] }}"
+
+    - name: "{{ task_prefix }}Ensure target directory"
+      file:
+        path: "/opt/{{ ts_latest }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      become: true
+
+    - name: "{{ task_prefix }}Download tree-sitter binary"
+      get_url:
+        url: "https://github.com/tree-sitter/tree-sitter/releases/download/{{ ts_info.json.tag_name }}/tree-sitter-linux-{{ ts_arch }}.gz"
+        dest: "/opt/{{ ts_latest }}/tree-sitter.gz"
+        owner: root
+        group: root
+        mode: '0644'
+      retries: 2
+      delay: 2
+      become: true
+
+    - name: "{{ task_prefix }}Decompress tree-sitter binary"
+      shell: |
+        gunzip -f "/opt/{{ ts_latest }}/tree-sitter.gz"
+        chmod 755 "/opt/{{ ts_latest }}/tree-sitter"
+      args:
+        creates: "/opt/{{ ts_latest }}/tree-sitter"
+      become: true
+
+    - name: "{{ task_prefix }}Link installed version"
+      file:
+        src: "/opt/{{ ts_latest }}"
+        dest: "/opt/tree-sitter"
+        state: link
+      become: true
+
+    - name: "{{ task_prefix }}Link binary"
+      file:
+        src: /opt/tree-sitter/tree-sitter
+        dest: "/usr/local/bin/tree-sitter"
+        state: link
+      become: true
+
+  when: not _ts.stat.exists

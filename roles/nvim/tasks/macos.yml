@@ -1,4 +1,4 @@
 - name: "{{ task_prefix}}Install neovim"
   community.general.homebrew:
     state: latest
-    name: neovim
+    name: neovim,tree-sitter-cli
