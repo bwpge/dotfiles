@@ -1,0 +1,6 @@
+- name: "{{ task_prefix }}Disable default precmd"
+  replace:
+    path: "{{ zsh_config.path }}"
+    regexp: '^precmd\s*\(\)\s*\{'
+    replace: '_disabled_precmd() {'
+  when: zsh_config.exists
