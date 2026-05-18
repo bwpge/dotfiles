@@ -1,3 +1,5 @@
+system_packages_state: present
+
 system_packages_debian:
   - bat
   - fzf
@@ -20,6 +22,7 @@ system_packages_kali:
   - autorecon
   - awscli
   - bloodhound-ce-python
+  - bloodyad
   - build-essential
   - cmake
   - docker-compose
@@ -30,6 +33,7 @@ system_packages_kali:
   - gettext
   - git
   - kali-wallpapers-all
+  - ligolo-ng
   - mingw-w64
   - mono-devel
   - mono-runtime

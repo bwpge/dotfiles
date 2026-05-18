@@ -6,19 +6,19 @@
 - name: "{{ task_prefix}}Install packages"
   become: true
   apt:
-    state: latest
+    state: "{{ system_packages_state }}"
     pkg: "{{ system_packages_debian }}"
 
 - name: "{{ task_prefix }}Install X11 packages"
   become: true
   apt:
-    state: latest
+    state: "{{ system_packages_state }}"
     pkg: "{{ system_packages_x11 }}"
   when: session_x11
 
 - name: "Install Wayland packages"
   become: true
   apt:
-    state: latest
+    state: "{{ system_packages_state }}"
     pkg: "{{ system_packages_wayland }}"
   when: session_wayland

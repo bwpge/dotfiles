@@ -1,9 +1,5 @@
-- name: "{{ task_prefix }}Update system"
-  community.general.homebrew:
-    update_homebrew: true
-    upgrade: true
-
 - name: "{{ task_prefix }}Install packages"
   community.general.homebrew:
-    state: latest
+    update_homebrew: true
+    state: "{{ system_packages_state }}"
     pkg: "{{ system_packages_macos }}"
