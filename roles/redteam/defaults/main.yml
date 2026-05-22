@@ -1,0 +1,53 @@
+redteam_carepackage_windows:
+  # SharpCollection (.NET)
+  - src: /opt/SharpCollection/NetFramework_4.7_Any/winPEAS.exe
+    dest: winPEAS.exe
+  - src: /opt/SharpCollection/NetFramework_4.7_Any/RunasCs.exe
+    dest: RunasCs.exe
+  - src: /opt/SharpCollection/NetFramework_4.7_Any/Rubeus.exe
+    dest: Rubeus.exe
+  - src: /opt/SharpCollection/NetFramework_4.7_Any/SharpHound.exe
+    dest: SharpHound.exe
+  - src: /opt/SharpCollection/NetFramework_4.7_Any/Certify.exe
+    dest: Certify.exe
+  # mimikatz
+  - src: /usr/share/windows-resources/mimikatz/x64/mimidrv.sys
+    dest: mimidrv.sys
+  - src: /usr/share/windows-resources/mimikatz/x64/mimikatz.exe
+    dest: mimikatz.exe
+  - src: /usr/share/windows-resources/mimikatz/x64/mimilib.dll
+    dest: mimilib.dll
+  - src: /usr/share/windows-resources/mimikatz/x64/mimispool.dll
+    dest: mimispool.dll
+  # potatoes
+  - src: /opt/potato/PrintSpoofer64.exe
+    dest: PrintSpoofer64.exe
+  - src: /opt/potato/GodPotato-NET4.exe
+    dest: GodPotato-NET4.exe
+  - src: /opt/potato/JuicyPotato-x86.exe
+    dest: JuicyPotato-x86.exe
+  - src: /opt/potato/SweetPotato.exe
+    dest: SweetPotato.exe
+  # PowerSploit
+  - src: /usr/share/windows-resources/powersploit/Privesc/PowerUp.ps1
+    dest: PowerUp.ps1
+  - src: /usr/share/windows-resources/powersploit/Recon/PowerView.ps1
+    dest: PowerView.ps1
+  # misc
+  - src: /usr/share/windows-resources/binaries/nc.exe
+    dest: nc.exe
+  - src: /usr/share/powershell-empire/empire/server/data/module_source/management/powercat.ps1
+    dest: powercat.ps1
+  # pivoting
+  - src: /opt/chisel/chisel.exe
+    dest: chisel.exe
+  - src: /opt/ligolo/agent.exe
+    dest: ligolo-agent.exe
+
+redteam_carepackage_linux:
+  - src: /usr/share/peass/linpeas/linpeas.sh
+    dest: linpeas.sh
+  - src: /opt/pspy/pspy64
+    dest: pspy64
+  - src: /opt/pspy/pspy32
+    dest: pspy32

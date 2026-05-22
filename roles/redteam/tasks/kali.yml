@@ -157,7 +157,7 @@
   become: true
   when: not chiselbin.stat.exists
 
-- name: "{{ task_prefix }}chisel | Create opt directory"
+- name: "{{ task_prefix }}chisel | Create directory"
   file:
     path: /opt/chisel
     state: directory
@@ -170,3 +170,160 @@
     dest: "/opt/chisel"
     creates: "/opt/chisel/chisel.exe"
   become: true
+
+- name: "{{task_prefix}}ligolo-ng | Query latest version"
+  uri:
+    url: https://api.github.com/repos/nicocha30/ligolo-ng/releases/latest
+  register: ligolo_info
+  changed_when: false
+
+- name: "{{ task_prefix }}ligolo-ng | Create directory"
+  file:
+    path: /opt/ligolo
+    state: directory
+  become: true
+
+- name: "{{ task_prefix }}ligolo-ng | Download windows agent"
+  unarchive:
+    remote_src: true
+    src: "https://github.com/nicocha30/ligolo-ng/releases/download/{{ ligolo_info.json.tag_name }}/ligolo-ng_agent_{{ ligolo_info.json.tag_name[1:] }}_windows_amd64.zip"
+    dest: "/opt/ligolo"
+    creates: "/opt/ligolo/agent.exe"
+  become: true
+
+- name: "{{task_prefix}}pspy | Query latest version"
+  uri:
+    url: https://api.github.com/repos/DominicBreuker/pspy/releases/latest
+  register: pspy_info
+  changed_when: false
+
+- name: "{{ task_prefix }}pspy | Create directory"
+  file:
+    path: /opt/pspy
+    state: directory
+  become: true
+
+- name: "{{ task_prefix }}pspy | Download linux binaries"
+  get_url:
+    url: "https://github.com/DominicBreuker/pspy/releases/download/{{ pspy_info.json.tag_name }}/{{ item }}"
+    dest: "/opt/pspy/{{ item }}"
+    mode: 0755
+  become: true
+  loop:
+    - pspy64
+    - pspy32
+
+- name: "{{ task_prefix }}potato | Create directory"
+  file:
+    path: /opt/potato
+    state: directory
+  become: true
+  tags:
+    - carepackage
+
+- name: "{{task_prefix}}PrintSpoofer | Query latest version"
+  uri:
+    url: https://api.github.com/repos/itm4n/PrintSpoofer/releases/latest
+  register: printspoofer_info
+  changed_when: false
+  tags:
+    - carepackage
+
+- name: "{{ task_prefix }}PrintSpoofer | Download"
+  get_url:
+    url: "https://github.com/itm4n/PrintSpoofer/releases/download/{{ printspoofer_info.json.tag_name }}/PrintSpoofer64.exe"
+    dest: /opt/potato/PrintSpoofer64.exe
+    mode: 0755
+  become: true
+  notify: Rebuild windows carepackage
+  tags:
+    - carepackage
+
+- name: "{{task_prefix}}GodPotato | Query latest version"
+  uri:
+    url: https://api.github.com/repos/BeichenDream/GodPotato/releases/latest
+  register: godpotato_info
+  changed_when: false
+  tags:
+    - carepackage
+
+- name: "{{ task_prefix }}GodPotato | Download"
+  get_url:
+    url: "https://github.com/BeichenDream/GodPotato/releases/download/{{ godpotato_info.json.tag_name }}/GodPotato-NET4.exe"
+    dest: /opt/potato/GodPotato-NET4.exe
+    mode: 0755
+  become: true
+  notify: Rebuild windows carepackage
+  tags:
+    - carepackage
+
+- name: "{{task_prefix}}Juicy-Potato-x86 | Query latest version"
+  uri:
+    url: https://api.github.com/repos/ivanitlearning/Juicy-Potato-x86/releases/latest
+  register: juicypotato_info
+  changed_when: false
+  tags:
+    - carepackage
+
+- name: "{{ task_prefix }}Juicy-Potato-x86 | Download"
+  get_url:
+    url: "https://github.com/ivanitlearning/Juicy-Potato-x86/releases/download/{{ juicypotato_info.json.tag_name }}/Juicy.Potato.x86.exe"
+    dest: /opt/potato/JuicyPotato-x86.exe
+    mode: 0755
+  become: true
+  notify: Rebuild windows carepackage
+  tags:
+    - carepackage
+
+- name: "{{ task_prefix }}SweetPotato | Link into /opt/potato"
+  file:
+    src: /opt/SharpCollection/NetFramework_4.7_Any/SweetPotato.exe
+    dest: /opt/potato/SweetPotato.exe
+    state: link
+    force: true
+    follow: false
+  become: true
+  notify: Rebuild windows carepackage
+  tags:
+    - carepackage
+
+- name: "{{ task_prefix }}Care package | Create directories"
+  file:
+    path: "/opt/carepackage/{{ item }}"
+    state: directory
+  become: true
+  loop:
+    - windows
+    - linux
+  tags:
+    - carepackage
+
+- name: "{{ task_prefix }}Care package | Link windows tools"
+  file:
+    src: "{{ item.src }}"
+    dest: "/opt/carepackage/windows/{{ item.dest }}"
+    state: link
+    force: true
+    follow: false
+  become: true
+  loop: "{{ redteam_carepackage_windows }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  notify: Rebuild windows carepackage
+  tags:
+    - carepackage
+
+- name: "{{ task_prefix }}Care package | Link linux tools"
+  file:
+    src: "{{ item.src }}"
+    dest: "/opt/carepackage/linux/{{ item.dest }}"
+    state: link
+    force: true
+    follow: false
+  become: true
+  loop: "{{ redteam_carepackage_linux }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  notify: Rebuild linux carepackage
+  tags:
+    - carepackage

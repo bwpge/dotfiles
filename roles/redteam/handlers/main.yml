@@ -1,0 +1,11 @@
+- name: Rebuild windows carepackage
+  ansible.builtin.command:
+    cmd: zip -r -FS ../carepackage-windows.zip .
+    chdir: /opt/carepackage/windows
+  become: true
+
+- name: Rebuild linux carepackage
+  ansible.builtin.command:
+    cmd: zip -r -FS ../carepackage-linux.zip .
+    chdir: /opt/carepackage/linux
+  become: true
