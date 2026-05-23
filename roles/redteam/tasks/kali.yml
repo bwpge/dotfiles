@@ -327,3 +327,12 @@
   notify: Rebuild linux carepackage
   tags:
     - carepackage
+
+- name: "{{ task_prefix }}Care package | Write tool sources reference"
+  copy:
+    src: carepackage-sources.md
+    dest: /opt/carepackage/SOURCES.md
+    mode: 0644
+  become: true
+  tags:
+    - carepackage
