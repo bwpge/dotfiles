@@ -76,6 +76,10 @@
       tags:
         - bash
         - never
+    - role: claude
+      tags:
+        - claude
+        - never
     - role: qterm
       tags:
         - qterm

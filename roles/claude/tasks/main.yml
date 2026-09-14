@@ -1,0 +1,113 @@
+- ansible.builtin.import_tasks: "{{ playbook_dir }}/shared/include_os.yml"
+
+- name: Set claude code config fact
+  set_fact:
+    claude_code_config_dir: "{{ ansible_facts['env'].HOME }}/.claude"
+
+- name: Ensure the Claude Code config directory exists
+  ansible.builtin.file:
+    path: "{{ claude_code_config_dir }}"
+    state: directory
+    mode: "0700"
+
+- name: Set claude code file paths
+  set_fact:
+    claude_code_settings_path: "{{ claude_code_config_dir }}/settings.json"
+    claude_code_status_line_path: "{{ claude_code_config_dir }}/status-line.sh"
+
+- name: Install the status line script
+  ansible.builtin.copy:
+    src: status-line.sh
+    dest: "{{ claude_code_status_line_path }}"
+    mode: "0755"
+
+- name: Read the existing settings file
+  ansible.builtin.slurp:
+    src: "{{ claude_code_settings_path }}"
+  register: _claude_settings_b64
+  failed_when: false
+  changed_when: false
+
+- name: Parse the existing settings file
+  ansible.builtin.set_fact:
+    _claude_settings_old: >-
+      {{ (_claude_settings_b64.content | b64decode | from_json)
+         if (_claude_settings_b64.content is defined
+             and (_claude_settings_b64.content | b64decode | trim) is match('^\{')
+             and (_claude_settings_b64.content | b64decode | from_json) is mapping)
+         else {} }}
+  failed_when: false
+
+- name: Use settings fallback if settings file fails to parse
+  ansible.builtin.set_fact:
+    _claude_settings_old: {}
+  when: _claude_settings_old is not defined or _claude_settings_old is not mapping
+
+- name: Build the desired settings document
+  ansible.builtin.set_fact:
+    _claude_settings_new: >-
+      {{ _claude_settings_old | combine({
+           'env': {
+             'DISABLE_TELEMETRY': '1',
+             'DISABLE_ERROR_REPORTING': '1',
+             'DISABLE_FEEDBACK_COMMAND': '1',
+             'CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY': '1',
+           },
+           'telemetry.disabled': True,
+           'feedbackDrafts': 'off',
+           'statusLine': {
+             'type': 'command',
+             'command': claude_code_status_line_path,
+             'padding': 0,
+           },
+         }, recursive=True)
+      }}
+
+- name: Write settings.json
+  ansible.builtin.copy:
+    content: "{{ _claude_settings_new | to_nice_json }}\n"
+    dest: "{{ claude_code_settings_path }}"
+    mode: "0600"
+
+- name: "Add claude shell block"
+  blockinfile:
+    path: "{{ shell_item.path }}"
+    block: |
+      function tclaude {
+          local parent target name
+          parent="$HOME/workspace"
+          target="$1"
+          if [ -z "$target" ]; then
+              target=$(find "$parent" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | fzf --prompt='workspace> ' --height='~100%')
+          fi
+          if [ -z "$target" ]; then
+              echo "error: target project is required" >&2
+              return 1
+          fi
+
+          name=${target//[.:]/_}
+          target="$parent/$target"
+
+          if tmux has-session -t $name 2>/dev/null; then
+              tmux a -t $name
+              return
+          fi
+
+          tmux new-session -d -c "$target" -s "$name" && \
+              tmux rename-window -t "$name:1" claude && \
+              tmux setw -t "$name:1" monitor-activity off && \
+              tmux neww -c "$target" -t "$name:" && \
+              tmux rename-window -t "$name:2" dev && \
+              tmux setw -t "$name:2" monitor-activity off && \
+              tmux selectw -t "$name:1" && \
+              tmux attach-session -t "$name"
+      }
+    append_newline: true
+    prepend_newline: true
+    marker: "# {mark} dotfile:claude"
+    marker_begin: '>>>'
+    marker_end: '<<<'
+  when: shell_item.exists
+  loop: "{{ shell_configs }}"
+  loop_control:
+    loop_var: shell_item

@@ -31,6 +31,10 @@
         - utils
 
     # run only if specified in tags
+    - role: claude
+      tags:
+        - claude
+        - never
     - role: go
       tags:
         - go
