@@ -39,6 +39,7 @@ set splitbelow
 set diffopt+=vertical
 
 " keymaps
+nnoremap <leader><leader> <C-^>
 nnoremap <C-l> :nohlsearch<CR><C-l>
 nnoremap Y y$
 nnoremap x "_x
@@ -147,6 +148,12 @@ function! CloseNonEssential() abort
     quit
 endfunction
 au FileType help,qf,man,fugitive,netrw nnoremap <buffer> <nowait> <silent> q :call CloseNonEssential()<CR>
+
+" visual wrap markdown files
+augroup MarkdownWrap
+  autocmd!
+  autocmd FileType markdown setlocal wrap linebreak textwidth=0
+augroup END
 
 " colorscheme, based on catppuccin/vim
 set background=dark
